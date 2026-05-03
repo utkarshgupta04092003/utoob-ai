@@ -65,3 +65,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Configuration
 
 All core configurations (prompts, model names, and limits) are centralized in \`lib/config.ts\`. You can easily tweak the AI output style or swap models without digging through the API routes.
+
