@@ -1,0 +1,101 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  videos       Video[]
+  summaries    Summary[]
+  notes        Note[]
+  quizzes      Quiz[]
+  chatMessages ChatMessage[]
+  socialPosts  SocialPost[]
+}
+
+model Video {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  youtubeUrl String
+  title      String
+  transcript String
+  duration   Int?
+  createdAt  DateTime @default(now())
+  deleted    Boolean  @default(false)
+
+  summaries    Summary[]
+  notes        Note[]
+  quizzes      Quiz[]
+  chatMessages ChatMessage[]
+  socialPosts  SocialPost[]
+}
+
+model Summary {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String   @db.ObjectId
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  type      String // "detailed" | "short"
+  content   String
+  createdAt DateTime @default(now())
+  deleted   Boolean  @default(false)
+}
+
+model Note {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String   @db.ObjectId
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  content   Json // Structured JSON
+  createdAt DateTime @default(now())
+  deleted   Boolean  @default(false)
+}
+
+model Quiz {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String   @db.ObjectId
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  questions Json // JSON array of MCQs
+  createdAt DateTime @default(now())
+  deleted   Boolean  @default(false)
+}
+
+model ChatMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String   @db.ObjectId
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  role      String // "user" | "assistant"
+  content   String
+  createdAt DateTime @default(now())
+  deleted   Boolean  @default(false)
+}
+
+model SocialPost {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String   @db.ObjectId
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  platform  String // "linkedin" | "twitter"
+  content   String
+  metadata  Json? // hook, tone, etc.
+  createdAt DateTime @default(now())
+  deleted   Boolean  @default(false)
+}

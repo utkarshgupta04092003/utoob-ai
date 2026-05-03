@@ -1,0 +1,29 @@
+export const APP_CONFIG = {
+  appName: "YouTube SaaS",
+  description:
+    "Generate summaries, notes, quizzes, and social posts from YouTube videos.",
+  models: {
+    openai: "gpt-4o-mini",
+    gemini: "gemini-1.5-flash",
+  },
+  prompts: {
+    summarize: {
+      detailed:
+        "You are an expert summarizer. Provide a highly detailed summary of the following video transcript. Include all main points, supporting details, and nuances. Format with clear headings and bullet points.",
+      short:
+        "You are an expert summarizer. Provide a short, concise TLDR (Too Long; Didn't Read) of the following video transcript. Limit it to 3-5 sentences.",
+    },
+    notes:
+      'You are a master note-taker. Extract the most important insights from the following transcript into structured notes. Format the output as JSON with the following schema: { "headings": [{ "title": string, "bullets": string[] }] }',
+    quiz: 'You are an educator. Generate a 5-question multiple choice quiz based on the following transcript. Include varying difficulty levels. Format the output as JSON with the following schema: { "questions": [{ "question": string, "options": string[], "correctAnswer": string, "explanation": string, "difficulty": "easy" | "medium" | "hard" }] }',
+    social: {
+      linkedin:
+        'You are a top-tier LinkedIn ghostwriter. Create 5 engaging LinkedIn posts based on the provided video transcript. Each post must have a strong hook (curiosity gap), a valuable body, and a clear call to action. Use clean formatting and appropriate line breaks. Return as JSON: { "posts": [{ "hook": string, "body": string, "cta": string }] }',
+      twitter:
+        'You are a viral Twitter ghostwriter. Create 10 highly engaging Twitter threads or single tweets based on the transcript. Focus on virality, actionable insights, and hooks. Return as JSON: { "posts": [{ "hook": string, "body": string, "cta": string }] }',
+    },
+  },
+  limits: {
+    maxTranscriptLength: 100000,
+  },
+};
