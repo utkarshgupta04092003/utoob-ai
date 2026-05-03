@@ -33,6 +33,10 @@ export async function POST(req: Request) {
       video.transcript,
       APP_CONFIG.prompts.notes,
     );
+    logger.info(
+      "Generated Notes Content:",
+      JSON.stringify(content).slice(0, 100) + "...",
+    );
 
     const note = await prisma.note.create({
       data: {
@@ -41,6 +45,8 @@ export async function POST(req: Request) {
         content,
       },
     });
+
+    logger.info("Successfully saved note to DB:", note.id);
 
     posthog.capture({
       distinctId: userId,

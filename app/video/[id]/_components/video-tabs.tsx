@@ -11,6 +11,7 @@ import {
 import { ENDPOINTS } from "@/lib/endpoint";
 import { useAPIKey } from "@/providers/api-key-provider";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 export function VideoTabs({ video }: { video: any }) {
   const [activeTab, setActiveTab] = useState("summary");
@@ -98,8 +99,48 @@ export function VideoTabs({ video }: { video: any }) {
             </CardHeader>
             <CardContent>
               {localData.summary ? (
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {localData.summary}
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown
+                    components={{
+                      h1: ({ children }) => (
+                        <h1 className="text-xl font-bold mb-4 text-primary">
+                          {children}
+                        </h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2 className="text-lg font-semibold mt-6 mb-3 text-foreground border-b pb-1">
+                          {children}
+                        </h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="text-base font-semibold mt-4 mb-2 text-foreground/90">
+                          {children}
+                        </h3>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc pl-5 space-y-2 mb-4">
+                          {children}
+                        </ul>
+                      ),
+                      li: ({ children }) => (
+                        <li className="text-muted-foreground leading-relaxed">
+                          {children}
+                        </li>
+                      ),
+                      p: ({ children }) => (
+                        <p className="mb-4 text-muted-foreground leading-relaxed">
+                          {children}
+                        </p>
+                      ),
+                      strong: ({ children }) => (
+                        <strong className="font-semibold text-foreground">
+                          {children}
+                        </strong>
+                      ),
+                    }}
+                  >
+                    {localData.summary}
+                  </ReactMarkdown>
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground italic">

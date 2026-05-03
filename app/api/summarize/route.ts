@@ -30,8 +30,8 @@ export async function POST(req: Request) {
 
     const content = await generateText(
       { provider: provider as Provider, apiKey, model },
-      video.transcript,
-      APP_CONFIG.prompts.summarize.detailed,
+      `Transcript: ${video.transcript}`,
+      APP_CONFIG.prompts.summarize,
     );
 
     const summary = await prisma.summary.create({

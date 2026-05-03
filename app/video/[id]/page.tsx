@@ -21,10 +21,10 @@ export default async function VideoPage({
   const video = await prisma.video.findFirst({
     where: { id: params.id, userId, deleted: false },
     include: {
-      summaries: true,
-      notes: true,
-      quizzes: true,
-      socialPosts: true,
+      summaries: { orderBy: { createdAt: "desc" } },
+      notes: { orderBy: { createdAt: "desc" } },
+      quizzes: { orderBy: { createdAt: "desc" } },
+      socialPosts: { orderBy: { createdAt: "desc" } },
     },
   });
 

@@ -1,14 +1,31 @@
-import { ROLES } from "@/lib/config";
+import { PROVIDERS, ROLES } from "@/lib/config";
 import { logger } from "@/lib/logger";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 
-export type Provider = "openai" | "gemini";
+export type Provider = (typeof PROVIDERS)[keyof typeof PROVIDERS];
 
 export interface AIClientOptions {
   provider: Provider;
   model: string;
   apiKey: string;
+}
+
+function getClient({
+  provider,
+  apiKey,
+}: {
+  provider: Provider;
+  apiKey: string;
+}) {
+  if (provider === PROVIDERS.OPENAI) {
+    return new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+  } else {
+    return new OpenAI({
+      apiKey,
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+      dangerouslyAllowBrowser: true,
+    });
+  }
 }
 
 export async function validateKey({
@@ -17,17 +34,9 @@ export async function validateKey({
   model,
 }: AIClientOptions) {
   try {
-    if (provider === "openai") {
-      const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-      await openai.models.list(); // Simple list models call to verify key
-      return true;
-    } else if (provider === "gemini") {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const geminiModel = genAI.getGenerativeModel({ model });
-      await geminiModel.generateContent("Hello"); // Small prompt to verify key
-      return true;
-    }
-    return false;
+    const openai = getClient({ provider, apiKey });
+    await openai.models.list(); // Simple list models call to verify key
+    return true;
   } catch (error) {
     logger.error("Key Validation Error:", error);
     return false;
@@ -39,25 +48,15 @@ export async function generateText(
   prompt: string,
   system?: string,
 ) {
-  if (provider === "openai") {
-    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-    const response = await openai.chat.completions.create({
-      model: model,
-      messages: [
-        ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
-        { role: ROLES.USER, content: prompt },
-      ],
-    });
-    return response.choices[0].message.content;
-  } else if (provider === "gemini") {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const geminiModel = genAI.getGenerativeModel({ model: model });
-    const fullPrompt = system ? `${system}\n\n${prompt}` : prompt;
-    const result = await geminiModel.generateContent(fullPrompt);
-    const response = await result.response;
-    return response.text();
-  }
-  throw new Error("Invalid provider");
+  const openai = getClient({ provider, apiKey });
+  const response = await openai.chat.completions.create({
+    model: model,
+    messages: [
+      ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
+      { role: ROLES.USER, content: prompt },
+    ],
+  });
+  return response.choices[0].message.content;
 }
 
 export async function generateJson(
@@ -65,31 +64,33 @@ export async function generateJson(
   prompt: string,
   system?: string,
 ) {
-  if (provider === "openai") {
-    const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-    const response = await openai.chat.completions.create({
-      model: model,
-      response_format: { type: "json_object" },
-      messages: [
-        ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
-        { role: ROLES.USER, content: prompt },
-      ],
-    });
-    return JSON.parse(response.choices[0].message.content || "{}");
-  } else if (provider === "gemini") {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const geminiModel = genAI.getGenerativeModel({
-      model: model,
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
-    });
-    const fullPrompt = system
-      ? `${system}\n\n${prompt}\n\nEnsure output is valid JSON.`
-      : `${prompt}\n\nEnsure output is valid JSON.`;
-    const result = await geminiModel.generateContent(fullPrompt);
-    const response = await result.response;
-    return JSON.parse(response.text() || "{}");
+  const openai = getClient({ provider, apiKey });
+  const response = await openai.chat.completions.create({
+    model: model,
+    response_format: { type: "json_object" },
+    messages: [
+      ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
+      { role: ROLES.USER, content: prompt },
+    ],
+  });
+
+  const content = response.choices[0].message.content || "{}";
+
+  try {
+    // Clean potential markdown wrapping
+    const cleanContent = content.replace(/```json\n?|```/g, "").trim();
+    return JSON.parse(cleanContent);
+  } catch (error) {
+    logger.error("JSON Parsing Error:", error, "Raw Content:", content);
+    // Fallback attempt to find any JSON object in the string
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[0]);
+      } catch (innerError) {
+        throw new Error("Failed to parse AI response as JSON");
+      }
+    }
+    throw new Error("Failed to parse AI response as JSON");
   }
-  throw new Error("Invalid provider");
 }

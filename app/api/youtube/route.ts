@@ -3,7 +3,11 @@ import { logger } from "@/lib/logger";
 import { posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
-import { extractVideoId, fetchTranscript } from "@/lib/youtube";
+import {
+  extractVideoId,
+  fetchTranscript,
+  fetchVideoMetadata,
+} from "@/lib/youtube";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -26,13 +30,16 @@ export async function POST(req: Request) {
       );
     }
 
-    const transcript = await fetchTranscript(url);
+    const [transcript, metadata] = await Promise.all([
+      fetchTranscript(url),
+      fetchVideoMetadata(url),
+    ]);
 
     const video = await prisma.video.create({
       data: {
         userId,
         youtubeUrl: url,
-        title: `Video ${videoId}`, // In a real app, fetch metadata
+        title: metadata.title,
         transcript,
       },
     });

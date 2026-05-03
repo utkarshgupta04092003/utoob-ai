@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Provider } from "@/lib/ai";
-import { APP_CONFIG } from "@/lib/config";
+import { APP_CONFIG, PROVIDERS } from "@/lib/config";
 import { ENDPOINTS } from "@/lib/endpoint";
 import { useAPIKey } from "@/providers/api-key-provider";
 import {
@@ -118,8 +118,8 @@ export default function SettingsPage() {
                   value={provider}
                   onChange={(e) => setProvider(e.target.value as Provider)}
                 >
-                  <option value="gemini">Google Gemini</option>
-                  <option value="openai" disabled>
+                  <option value={PROVIDERS.GEMINI}>Google Gemini</option>
+                  <option value={PROVIDERS.OPENAI} disabled>
                     OpenAI (Not Available)
                   </option>
                 </select>
@@ -149,7 +149,7 @@ export default function SettingsPage() {
                 <div className="relative flex-1 group">
                   <Input
                     type={showKey ? "text" : "password"}
-                    placeholder={`Enter your ${provider === "openai" ? "OpenAI" : "Gemini"} API key`}
+                    placeholder={`Enter your ${provider === PROVIDERS.OPENAI ? "OpenAI" : "Gemini"} API key`}
                     value={tempKey}
                     onChange={(e) => setTempKey(e.target.value)}
                     className="pr-10 bg-background/50 focus:bg-background transition-all"
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                   className={`mt-2 p-3 rounded-lg flex items-center gap-2 text-sm animate-in fade-in slide-in-from-top-1 ${
                     testResult.success
                       ? "bg-green-500/10 text-green-500 border border-green-500/20"
-                      : "bg-destructive/10 text-destructive border border-destructive/20"
+                      : "bg-red-500/10 text-red-500 border border-red-500/20"
                   }`}
                 >
                   {testResult.success ? (

@@ -34,6 +34,11 @@ export async function POST(req: Request) {
       APP_CONFIG.prompts.quiz,
     );
 
+    logger.info(
+      "Generated Quiz Content:",
+      JSON.stringify(content).slice(0, 100) + "...",
+    );
+
     const quiz = await prisma.quiz.create({
       data: {
         userId,
@@ -41,6 +46,8 @@ export async function POST(req: Request) {
         questions: content.questions || content,
       },
     });
+
+    logger.info("Successfully saved quiz to DB:", quiz.id);
 
     posthog.capture({
       distinctId: userId,
