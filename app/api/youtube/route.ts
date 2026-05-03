@@ -1,16 +1,15 @@
-import { authOptions } from "@/lib/auth";
+import { ANALYTICS_EVENTS } from "@/lib/config";
+import { logger } from "@/lib/logger";
+import { posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/session";
 import { extractVideoId, fetchTranscript } from "@/lib/youtube";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || !(session.user as any).id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const userId = (session.user as any).id;
+    const session = await requireAuth();
+    const userId = session.user.id;
 
     const formData = await req.formData();
     const url = formData.get("url") as string;
@@ -38,12 +37,18 @@ export async function POST(req: Request) {
       },
     });
 
+    posthog.capture({
+      distinctId: userId,
+      event: ANALYTICS_EVENTS.VIDEO_INGESTED,
+      properties: { videoId: video.id, youtubeId: videoId },
+    });
+
     return NextResponse.redirect(new URL(`/video/${video.id}`, req.url));
-  } catch (error: any) {
-    console.error("YouTube Ingestion Error:", error);
-    return NextResponse.json(
-      { error: error.message || "Internal Server Error" },
-      { status: 500 },
-    );
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Something went wrong";
+    logger.error("YouTube Ingestion Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    await posthog.shutdown();
   }
 }

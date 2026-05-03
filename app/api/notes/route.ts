@@ -1,17 +1,15 @@
 import { generateJson, Provider } from "@/lib/ai";
-import { authOptions } from "@/lib/auth";
-import { APP_CONFIG } from "@/lib/config";
+import { ANALYTICS_EVENTS, APP_CONFIG } from "@/lib/config";
+import { logger } from "@/lib/logger";
+import { posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { requireAuth } from "@/lib/session";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || !(session.user as any).id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const userId = (session.user as any).id;
+    const session = await requireAuth();
+    const userId = session.user.id;
 
     const { videoId, provider, apiKey, model } = await req.json();
 
@@ -44,12 +42,18 @@ export async function POST(req: Request) {
       },
     });
 
+    posthog.capture({
+      distinctId: userId,
+      event: ANALYTICS_EVENTS.NOTES_GENERATED,
+      properties: { videoId, provider, model },
+    });
+
     return NextResponse.json({ data: note.content });
-  } catch (error: any) {
-    console.error("Notes Error:", error);
-    return NextResponse.json(
-      { error: error.message || "Internal Server Error" },
-      { status: 500 },
-    );
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Something went wrong";
+    logger.error("Notes Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    await posthog.shutdown();
   }
 }

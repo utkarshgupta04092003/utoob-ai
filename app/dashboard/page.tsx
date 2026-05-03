@@ -6,18 +6,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { authOptions } from "@/lib/auth";
+import { ENDPOINTS } from "@/lib/endpoint";
 import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/session";
 import { extractVideoId } from "@/lib/youtube";
-import { getServerSession } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user || !(session.user as any).id) return null;
-  const userId = (session.user as any).id;
+  const session = await requireAuth();
+  const userId = session.user.id;
 
   const videos = await prisma.video.findMany({
     where: { userId, deleted: false },
@@ -28,7 +26,7 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Your Videos</h1>
-        <form action="/api/youtube" method="POST" className="flex gap-2">
+        <form action={ENDPOINTS.YOUTUBE} method="POST" className="flex gap-2">
           <input
             type="url"
             name="url"

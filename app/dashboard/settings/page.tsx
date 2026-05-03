@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Provider } from "@/lib/ai";
 import { APP_CONFIG } from "@/lib/config";
+import { ENDPOINTS } from "@/lib/endpoint";
 import { useAPIKey } from "@/providers/api-key-provider";
 import {
   AlertCircle,
@@ -60,7 +61,7 @@ export default function SettingsPage() {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await fetch("/api/test-key", {
+      const res = await fetch(ENDPOINTS.TEST_KEY, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider, apiKey: tempKey, model }),

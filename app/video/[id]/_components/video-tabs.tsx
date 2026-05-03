@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ENDPOINTS } from "@/lib/endpoint";
 import { useAPIKey } from "@/providers/api-key-provider";
 import { useState } from "react";
 
@@ -29,7 +30,8 @@ export function VideoTabs({ video }: { video: any }) {
     }
     setLoading(true);
     try {
-      const res = await fetch(`/api/${type}`, {
+      const endpoint = ENDPOINTS[type.toUpperCase() as keyof typeof ENDPOINTS];
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ videoId: video.id, provider, apiKey, model }),

@@ -1,3 +1,4 @@
+import { PostHogProvider } from "@/app/providers/posthog-provider";
 import { APP_CONFIG } from "@/lib/config";
 import { APIKeyProvider } from "@/providers/api-key-provider";
 import { AuthProvider } from "@/providers/auth-provider";
@@ -21,11 +22,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <AuthProvider>
-            <APIKeyProvider>{children}</APIKeyProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <PostHogProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            <AuthProvider>
+              <APIKeyProvider>{children}</APIKeyProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

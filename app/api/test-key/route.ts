@@ -1,14 +1,14 @@
 import { Provider, validateKey } from "@/lib/ai";
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
+import { ANALYTICS_EVENTS } from "@/lib/config";
+import { logger } from "@/lib/logger";
+import { posthog } from "@/lib/posthog";
+import { requireAuth } from "@/lib/session";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await requireAuth();
+    const userId = session.user.id;
 
     const { provider, apiKey, model } = await req.json();
 
@@ -25,6 +25,12 @@ export async function POST(req: Request) {
       model,
     });
 
+    posthog.capture({
+      distinctId: userId,
+      event: ANALYTICS_EVENTS.SETTINGS_UPDATED,
+      properties: { action: "test_key", provider, isValid },
+    });
+
     if (isValid) {
       return NextResponse.json({ message: "API Key is working!" });
     } else {
@@ -33,11 +39,11 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-  } catch (error: any) {
-    console.error("Test Key Error:", error);
-    return NextResponse.json(
-      { error: error.message || "Internal Server Error" },
-      { status: 500 },
-    );
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Something went wrong";
+    logger.error("Test Key Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    await posthog.shutdown();
   }
 }

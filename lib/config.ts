@@ -33,4 +33,22 @@ export const APP_CONFIG = {
   limits: {
     maxTranscriptLength: 100000,
   },
-};
+} as const;
+
+export const ANALYTICS_EVENTS = {
+  USER_SIGNED_UP: "user_signed_up",
+  USER_LOGGED_IN: "user_logged_in",
+  VIDEO_INGESTED: "video_ingested",
+  SUMMARY_GENERATED: "summary_generated",
+  NOTES_GENERATED: "notes_generated",
+  QUIZ_GENERATED: "quiz_generated",
+  SOCIAL_POSTS_GENERATED: "social_posts_generated",
+  CHAT_MESSAGE_SENT: "chat_message_sent",
+  SETTINGS_UPDATED: "settings_updated",
+} as const;
+
+export const ROLES = {
+  USER: "user",
+  ASSISTANT: "assistant",
+  SYSTEM: "system",
+} as const;

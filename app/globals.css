@@ -4,43 +4,45 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
-    --primary: #6366f1;
-    --primary-foreground: #ffffff;
+    --primary: 243 75% 59%;
+    --primary-dark: 244 76% 60%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: #8b5cf6;
-    --secondary-foreground: #ffffff;
+    --secondary: 262 83% 58%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --border: #e2e8f0;
+    --border: 214 32% 91%;
 
-    --card: #ffffff;
-    --card-foreground: #0f172a;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
     --radius: 1rem;
   }
 
   .dark {
-    --background: #09090b;
-    --foreground: #fafafa;
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
 
-    --primary: #6366f1;
-    --primary-foreground: #ffffff;
+    --primary: 243 75% 59%;
+    --primary-dark: 244 76% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: #8b5cf6;
-    --secondary-foreground: #ffffff;
+    --secondary: 262 83% 58%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
 
-    --border: #27272a;
+    --border: 240 4% 16%;
 
-    --card: #18181b;
-    --card-foreground: #fafafa;
+    --card: 240 5% 10%;
+    --card-foreground: 0 0% 98%;
   }
 }
 
@@ -50,5 +52,37 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-cyan-500;
+  }
+  .glass {
+    @apply bg-card/40 backdrop-blur-md border border-border/50 shadow-xl;
+  }
+  .glass-light {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm;
+  }
+  .skeleton {
+    @apply animate-pulse bg-muted rounded-md;
+  }
+  .chat-message {
+    @apply p-4 rounded-2xl max-w-[85%] whitespace-pre-wrap shadow-sm border border-border/30;
+  }
+  .hero-gradient {
+    @apply bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background;
+  }
+
+  /* Animation Stagger Helpers */
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+  .delay-300 {
+    animation-delay: 300ms;
   }
 }

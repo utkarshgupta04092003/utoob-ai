@@ -1,3 +1,5 @@
+import { ROLES } from "@/lib/config";
+import { logger } from "@/lib/logger";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 
@@ -27,7 +29,7 @@ export async function validateKey({
     }
     return false;
   } catch (error) {
-    console.error("Key Validation Error:", error);
+    logger.error("Key Validation Error:", error);
     return false;
   }
 }
@@ -42,8 +44,8 @@ export async function generateText(
     const response = await openai.chat.completions.create({
       model: model,
       messages: [
-        ...(system ? [{ role: "system" as const, content: system }] : []),
-        { role: "user" as const, content: prompt },
+        ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
+        { role: ROLES.USER, content: prompt },
       ],
     });
     return response.choices[0].message.content;
@@ -69,8 +71,8 @@ export async function generateJson(
       model: model,
       response_format: { type: "json_object" },
       messages: [
-        ...(system ? [{ role: "system" as const, content: system }] : []),
-        { role: "user" as const, content: prompt },
+        ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
+        { role: ROLES.USER, content: prompt },
       ],
     });
     return JSON.parse(response.choices[0].message.content || "{}");
