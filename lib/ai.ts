@@ -59,6 +59,22 @@ export async function generateText(
   return response.choices[0].message.content;
 }
 
+export async function generateStream(
+  { provider, apiKey, model }: AIClientOptions,
+  prompt: string,
+  system?: string,
+) {
+  const openai = getClient({ provider, apiKey });
+  return await openai.chat.completions.create({
+    model: model,
+    stream: true,
+    messages: [
+      ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
+      { role: ROLES.USER, content: prompt },
+    ],
+  });
+}
+
 export async function generateJson(
   { provider, apiKey, model }: AIClientOptions,
   prompt: string,

@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -25,6 +26,7 @@ export default async function VideoPage({
       notes: { orderBy: { createdAt: "desc" } },
       quizzes: { orderBy: { createdAt: "desc" } },
       socialPosts: { orderBy: { createdAt: "desc" } },
+      chatMessages: { orderBy: { createdAt: "asc" } },
     },
   });
 
@@ -42,6 +44,7 @@ export default async function VideoPage({
             </Button>
           </Link>
           <h1 className="font-bold text-lg truncate flex-1">{video.title}</h1>
+          <ThemeToggle />
         </div>
       </header>
       <main className="container mx-auto px-4 py-8 max-w-5xl">
