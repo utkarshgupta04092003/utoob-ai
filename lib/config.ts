@@ -3,8 +3,15 @@ export const APP_CONFIG = {
   description:
     "Generate summaries, notes, quizzes, and social posts from YouTube videos.",
   models: {
-    openai: "gpt-4o-mini",
-    gemini: "gemini-1.5-flash",
+    openai: [
+      { id: "gpt-4o-mini", name: "GPT-4o Mini", available: false },
+      { id: "gpt-4-turbo", name: "GPT-4 Turbo", available: false },
+      { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo", available: false },
+    ],
+    gemini: [
+      { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash", available: true },
+      { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", available: true },
+    ],
   },
   prompts: {
     summarize: {

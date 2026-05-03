@@ -12,9 +12,9 @@ export async function POST(req: Request) {
     }
     const userId = (session.user as any).id;
 
-    const { videoId, provider, apiKey, message } = await req.json();
+    const { videoId, provider, apiKey, model, message } = await req.json();
 
-    if (!videoId || !provider || !apiKey || !message) {
+    if (!videoId || !provider || !apiKey || !model || !message) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -30,11 +30,11 @@ export async function POST(req: Request) {
     }
 
     const systemPrompt = `You are an AI assistant answering questions about a specific video. 
-    Here is the transcript of the video: \\n\\n\${video.transcript}\\n\\n
+    Here is the transcript of the video: \n\n${video.transcript}\n\n
     Answer the user's question based ONLY on this transcript.`;
 
     const responseContent = await generateText(
-      { provider: provider as Provider, apiKey },
+      { provider: provider as Provider, apiKey, model },
       message,
       systemPrompt,
     );

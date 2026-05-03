@@ -13,9 +13,9 @@ export async function POST(req: Request) {
     }
     const userId = (session.user as any).id;
 
-    const { videoId, provider, apiKey } = await req.json();
+    const { videoId, provider, apiKey, model } = await req.json();
 
-    if (!videoId || !provider || !apiKey) {
+    if (!videoId || !provider || !apiKey || !model) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     }
 
     const content = await generateJson(
-      { provider: provider as Provider, apiKey },
+      { provider: provider as Provider, apiKey, model },
       video.transcript,
       APP_CONFIG.prompts.notes,
     );

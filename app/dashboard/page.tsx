@@ -54,6 +54,7 @@ export default async function DashboardPage() {
               <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
                 <div className="relative w-full aspect-video rounded-t-2xl overflow-hidden bg-muted">
                   <Image
+                    unoptimized
                     src={`https://img.youtube.com/vi/${extractVideoId(video.youtubeUrl)}/mqdefault.jpg`}
                     alt={video.title}
                     className="object-cover w-full h-full"

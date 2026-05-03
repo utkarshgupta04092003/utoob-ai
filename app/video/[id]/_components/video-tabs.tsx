@@ -13,7 +13,7 @@ import { useState } from "react";
 
 export function VideoTabs({ video }: { video: any }) {
   const [activeTab, setActiveTab] = useState("summary");
-  const { provider, apiKey } = useAPIKey();
+  const { provider, model, apiKey } = useAPIKey();
   const [loading, setLoading] = useState(false);
   const [localData, setLocalData] = useState({
     summary: video.summaries?.[0]?.content || "",
@@ -32,7 +32,7 @@ export function VideoTabs({ video }: { video: any }) {
       const res = await fetch(`/api/${type}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videoId: video.id, provider, apiKey }),
+        body: JSON.stringify({ videoId: video.id, provider, apiKey, model }),
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
