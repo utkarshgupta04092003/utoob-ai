@@ -12,8 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { ROLES } from "@/lib/config";
 import { ENDPOINTS } from "@/lib/endpoint";
+import { cn } from "@/lib/utils";
 import { useAPIKey } from "@/providers/api-key-provider";
 import { Bot, Check, Copy, Send, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 function CopyButton({ text }: { text: string }) {
@@ -41,7 +43,97 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+function QuizQuestion({
+  question,
+  index,
+  onAnswer,
+}: {
+  question: any;
+  index: number;
+  onAnswer: (correct: boolean) => void;
+}) {
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const isCorrect = selectedOption === question.correctAnswer;
+
+  const handleSelect = (opt: string) => {
+    setSelectedOption(opt);
+    onAnswer(opt === question.correctAnswer);
+  };
+
+  return (
+    <div className="space-y-4 border-l-2 border-muted pl-4 py-2 transition-all">
+      <h4 className="font-medium text-foreground leading-snug text-base">
+        {index + 1}. {question.question}
+        <span className="text-[10px] text-muted-foreground ml-2 uppercase border px-1.5 py-0.5 rounded-full font-bold tracking-wider">
+          {question.difficulty}
+        </span>
+      </h4>
+      <div className="grid gap-2">
+        {question.options.map((opt: string, j: number) => {
+          const isSelected = selectedOption === opt;
+          const isAnswer = opt === question.correctAnswer;
+
+          let variant = "bg-muted/30 hover:bg-muted/50 border-transparent";
+          if (selectedOption) {
+            if (isAnswer)
+              variant =
+                "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400";
+            else if (isSelected)
+              variant =
+                "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400";
+          }
+
+          return (
+            <button
+              key={j}
+              disabled={!!selectedOption}
+              onClick={() => handleSelect(opt)}
+              className={cn(
+                "w-full text-left p-3 rounded-lg border transition-all text-sm",
+                variant,
+                !selectedOption && "cursor-pointer active:scale-[0.98]",
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    "h-5 w-5 rounded-full border flex items-center justify-center shrink-0 text-[10px] font-bold",
+                    isSelected
+                      ? "border-current"
+                      : "border-muted-foreground/30",
+                  )}
+                >
+                  {String.fromCharCode(65 + j)}
+                </div>
+                {opt}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {selectedOption && (
+        <div
+          className={cn(
+            "p-4 rounded-lg text-sm animate-in slide-in-from-top-2 duration-300",
+            isCorrect
+              ? "bg-green-500/5 text-green-700 dark:text-green-300 border border-green-500/10"
+              : "bg-red-500/5 text-red-700 dark:text-red-300 border border-red-500/10",
+          )}
+        >
+          <p className="font-semibold mb-1">
+            {isCorrect ? "✨ Correct!" : "❌ Incorrect"}
+          </p>
+          <p className="text-muted-foreground leading-relaxed">
+            {question.explanation}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function VideoTabs({ video }: { video: any }) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("summary");
   const { provider, model, apiKey } = useAPIKey();
   const [loading, setLoading] = useState(false);
@@ -56,6 +148,20 @@ export function VideoTabs({ video }: { video: any }) {
     quiz: video.quizzes?.[0]?.questions || null,
     social: video.socialPosts || [],
   });
+
+  // Sync local data if the server video prop updates (e.g., on router refresh)
+  useEffect(() => {
+    setLocalData({
+      summary: video.summaries?.[0]?.content || "",
+      notes: video.notes?.[0]?.content || null,
+      quiz: video.quizzes?.[0]?.questions || null,
+      social: video.socialPosts || [],
+    });
+  }, [video]);
+
+  const [quizResults, setQuizResults] = useState<Record<number, boolean>>({});
+  const totalAttempted = Object.keys(quizResults).length;
+  const score = Object.values(quizResults).filter(Boolean).length;
 
   const tabs = [
     { id: "summary", label: "Summary" },
@@ -95,11 +201,20 @@ export function VideoTabs({ video }: { video: any }) {
       });
       const json = await res.json();
       if (json.error) throw new Error(json.error);
+      if (type === "quiz") {
+        setQuizResults({});
+      }
+
+      const key = type === "summarize" ? "summary" : type;
 
       setLocalData((prev) => ({
         ...prev,
-        [type === "summarize" ? "summary" : type]: json.data,
+        [key]: json.data,
       }));
+
+      // Invalidate the Next.js client-side router cache to ensure subsequent
+      // navigations or soft-refreshes fetch the newly generated data from the server.
+      router.refresh();
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -242,7 +357,10 @@ export function VideoTabs({ video }: { video: any }) {
             </CardHeader>
             <CardContent>
               {localData.notes && localData.notes.headings ? (
-                <div className="space-y-6 text-base">
+                <div
+                  key={JSON.stringify(localData.notes)}
+                  className="space-y-6 text-base"
+                >
                   {localData.notes.headings.map((h: any, i: number) => (
                     <div key={i}>
                       <h4 className="font-semibold text-base mb-2 text-primary">
@@ -287,35 +405,49 @@ export function VideoTabs({ video }: { video: any }) {
             </CardHeader>
             <CardContent>
               {localData.quiz && localData.quiz.length > 0 ? (
-                <div className="space-y-8 text-base">
-                  {localData.quiz.map((q: any, i: number) => (
-                    <div
-                      key={i}
-                      className="space-y-2 border-l-2 border-muted pl-4"
-                    >
-                      <h4 className="font-medium text-foreground">
-                        {i + 1}. {q.question}{" "}
-                        <span className="text-xs text-muted-foreground ml-2 uppercase border px-1 rounded">
-                          {q.difficulty}
-                        </span>
-                      </h4>
-                      <div className="space-y-1">
-                        {q.options.map((opt: string, j: number) => (
-                          <div
-                            key={j}
-                            className={`p-2 rounded ${opt === q.correctAnswer ? "bg-primary/10 border-primary/20 border" : "bg-muted/50"}`}
-                          >
-                            {opt}
-                          </div>
-                        ))}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        <span className="font-semibold text-foreground">
-                          Explanation:
-                        </span>{" "}
-                        {q.explanation}
+                <div
+                  key={JSON.stringify(localData.quiz)}
+                  className="space-y-8 text-base"
+                >
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-muted-foreground/10 mb-6">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Your Performance
                       </p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-primary">
+                          {score}
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          / {localData.quiz.length} Correct
+                        </span>
+                      </div>
                     </div>
+                    <div className="flex gap-1">
+                      {localData.quiz.map((_: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className={cn(
+                            "w-1.5 h-8 rounded-full transition-all duration-500",
+                            quizResults[idx] === true
+                              ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
+                              : quizResults[idx] === false
+                                ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                                : "bg-muted-foreground/20",
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {localData.quiz.map((q: any, i: number) => (
+                    <QuizQuestion
+                      key={i}
+                      question={q}
+                      index={i}
+                      onAnswer={(correct) =>
+                        setQuizResults((prev) => ({ ...prev, [i]: correct }))
+                      }
+                    />
                   ))}
                 </div>
               ) : (
@@ -349,7 +481,10 @@ export function VideoTabs({ video }: { video: any }) {
             </CardHeader>
             <CardContent>
               {localData.social && localData.social.length > 0 ? (
-                <div className="space-y-4 text-base">
+                <div
+                  key={JSON.stringify(localData.social)}
+                  className="space-y-4 text-base"
+                >
                   {localData.social.map((post: any, i: number) => (
                     <div key={i} className="p-4 border rounded-lg bg-muted/20">
                       <div className="flex items-center justify-between mb-2">

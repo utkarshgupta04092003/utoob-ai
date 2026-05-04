@@ -55,14 +55,20 @@ export async function POST(req: Request) {
       })),
     ];
 
-    await prisma.socialPost.createMany({
-      data: posts.map((post) => ({
-        userId,
-        videoId,
-        platform: post.platform,
-        content: post.content,
-      })),
-    });
+    // Use a transaction to ensure deletion and creation are atomic
+    await prisma.$transaction([
+      prisma.socialPost.deleteMany({
+        where: { videoId, userId },
+      }),
+      prisma.socialPost.createMany({
+        data: posts.map((post) => ({
+          userId,
+          videoId,
+          platform: post.platform,
+          content: post.content,
+        })),
+      }),
+    ]);
 
     const createdPosts = await prisma.socialPost.findMany({
       where: { videoId, userId, deleted: false },

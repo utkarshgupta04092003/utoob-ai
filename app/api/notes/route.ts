@@ -38,13 +38,19 @@ export async function POST(req: Request) {
       JSON.stringify(content).slice(0, 100) + "...",
     );
 
-    const note = await prisma.note.create({
-      data: {
-        userId,
-        videoId,
-        content,
-      },
-    });
+    // Use a transaction to ensure deletion and creation are atomic
+    const [_, note] = await prisma.$transaction([
+      prisma.note.deleteMany({
+        where: { videoId, userId },
+      }),
+      prisma.note.create({
+        data: {
+          userId,
+          videoId,
+          content,
+        },
+      }),
+    ]);
 
     logger.info("Successfully saved note to DB:", note.id);
 

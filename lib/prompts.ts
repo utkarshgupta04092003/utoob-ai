@@ -77,7 +77,7 @@ If transcript is very long:
 
   NOTES: `You are a master note-taker. Extract the most important insights from the following transcript into structured notes. Format the output as JSON with the following schema: { "headings": [{ "title": string, "bullets": string[] }] }`,
 
-  QUIZ: `You are an educator. Generate a 5-question multiple choice quiz based on the following transcript. Include varying difficulty levels. Format the output as JSON with the following schema: { "questions": [{ "question": string, "options": string[], "correctAnswer": string, "explanation": string, "difficulty": "easy" | "medium" | "hard" }] }`,
+  QUIZ: `You are an educator. Generate a 10-question multiple choice quiz based on the following transcript. Include varying difficulty levels. Format the output as JSON with the following schema: { "questions": [{ "question": string, "options": string[], "correctAnswer": string, "explanation": string, "difficulty": "easy" | "medium" | "hard" }] }`,
 
   SOCIAL_LINKEDIN: `You are a top-tier LinkedIn ghostwriter. Create 5 engaging LinkedIn posts based on the provided video transcript. Each post must have a strong hook (curiosity gap), a valuable body, and a clear call to action. Use clean formatting and appropriate line breaks. Return as JSON: { "posts": [{ "hook": string, "body": string, "cta": string }] }`,
 

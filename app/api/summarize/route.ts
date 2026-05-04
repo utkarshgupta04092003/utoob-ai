@@ -5,7 +5,6 @@ import { posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
 import { NextResponse } from "next/server";
-
 export async function POST(req: Request) {
   try {
     const session = await requireAuth();
@@ -27,21 +26,26 @@ export async function POST(req: Request) {
     if (!video) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
-
     const content = await generateText(
       { provider: provider as Provider, apiKey, model },
       `Transcript: ${video.transcript}`,
       APP_CONFIG.prompts.summarize,
     );
 
-    const summary = await prisma.summary.create({
-      data: {
-        userId,
-        videoId,
-        type: "detailed",
-        content: content || "",
-      },
-    });
+    // Use a transaction to ensure deletion and creation are atomic
+    const [_, summary] = await prisma.$transaction([
+      prisma.summary.deleteMany({
+        where: { videoId, userId, type: "detailed" },
+      }),
+      prisma.summary.create({
+        data: {
+          userId,
+          videoId,
+          type: "detailed",
+          content: content || "",
+        },
+      }),
+    ]);
 
     posthog.capture({
       distinctId: userId,

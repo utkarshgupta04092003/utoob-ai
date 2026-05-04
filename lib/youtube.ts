@@ -5,12 +5,21 @@ export async function fetchTranscript(youtubeUrl: string): Promise<string> {
   if (!videoId) throw new Error("Invalid YouTube URL");
 
   try {
-    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+    // Attempt to fetch English transcript first
+    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId, {
+      lang: "en",
+    });
     return transcriptItems.map((item) => item.text).join(" ");
   } catch (error) {
-    throw new Error(
-      "Failed to fetch transcript. Ensure the video has captions enabled.",
-    );
+    try {
+      // Fallback to default transcript if English is not available
+      const fallbackItems = await YoutubeTranscript.fetchTranscript(videoId);
+      return fallbackItems.map((item) => item.text).join(" ");
+    } catch (fallbackError) {
+      throw new Error(
+        "Failed to fetch transcript. Ensure the video has captions enabled.",
+      );
+    }
   }
 }
 

@@ -8,6 +8,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { VideoTabs } from "./_components/video-tabs";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function VideoPage({
   params,
 }: {

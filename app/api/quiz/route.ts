@@ -39,13 +39,19 @@ export async function POST(req: Request) {
       JSON.stringify(content).slice(0, 100) + "...",
     );
 
-    const quiz = await prisma.quiz.create({
-      data: {
-        userId,
-        videoId,
-        questions: content.questions || content,
-      },
-    });
+    // Use a transaction to ensure deletion and creation are atomic
+    const [_, quiz] = await prisma.$transaction([
+      prisma.quiz.deleteMany({
+        where: { videoId, userId },
+      }),
+      prisma.quiz.create({
+        data: {
+          userId,
+          videoId,
+          questions: content.questions || content,
+        },
+      }),
+    ]);
 
     logger.info("Successfully saved quiz to DB:", quiz.id);
 
