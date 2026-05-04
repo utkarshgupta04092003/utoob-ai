@@ -12,6 +12,7 @@ import { requireAuth } from "@/lib/session";
 import { extractVideoId } from "@/lib/youtube";
 import Image from "next/image";
 import Link from "next/link";
+import { DeleteVideo } from "./_components/delete-video";
 
 export default async function DashboardPage() {
   const session = await requireAuth();
@@ -60,7 +61,10 @@ export default async function DashboardPage() {
                     priority
                   />
                 </div>
-                <CardHeader>
+                <CardHeader className="relative pr-12">
+                  <div className="absolute top-4 right-4 z-10">
+                    <DeleteVideo videoId={video.id} />
+                  </div>
                   <CardTitle className="line-clamp-2 text-lg">
                     {video.title}
                   </CardTitle>

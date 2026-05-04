@@ -59,3 +59,51 @@ export async function POST(req: Request) {
     await posthog.shutdown();
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const session = await requireAuth();
+    const userId = session.user.id;
+    const { videoId } = await req.json();
+
+    if (!videoId) {
+      return NextResponse.json(
+        { error: "Video ID is required" },
+        { status: 400 },
+      );
+    }
+
+    // Perform soft delete on video and all related entities in a transaction
+    await prisma.$transaction([
+      prisma.video.update({
+        where: { id: videoId, userId },
+        data: { deleted: true },
+      }),
+      prisma.summary.updateMany({
+        where: { videoId, userId },
+        data: { deleted: true },
+      }),
+      prisma.note.updateMany({
+        where: { videoId, userId },
+        data: { deleted: true },
+      }),
+      prisma.quiz.updateMany({
+        where: { videoId, userId },
+        data: { deleted: true },
+      }),
+      prisma.socialPost.updateMany({
+        where: { videoId, userId },
+        data: { deleted: true },
+      }),
+      prisma.chatMessage.updateMany({
+        where: { videoId, userId },
+        data: { deleted: true },
+      }),
+    ]);
+
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Something went wrong";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
