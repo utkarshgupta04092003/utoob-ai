@@ -1,9 +1,9 @@
 import { SYSTEM_PROMPTS } from "./prompts";
 
 export const APP_CONFIG = {
-  appName: "YouTube SaaS",
+  appName: "uToob AI",
   description:
-    "Generate summaries, notes, quizzes, and social posts from YouTube videos.",
+    "Transform YouTube videos into viral social posts, smart summaries, and interactive quizzes with AI.",
   models: {
     openai: [
       { id: "gpt-5.4", name: "GPT-5.4", available: true },

@@ -10,7 +10,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: `${APP_CONFIG.appName} AI`,
+  title: APP_CONFIG.appName,
   description: APP_CONFIG.description,
 };
 
