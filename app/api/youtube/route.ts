@@ -40,6 +40,7 @@ export async function POST(req: Request) {
         userId,
         youtubeUrl: url,
         title: metadata.title,
+        authorName: metadata.authorName,
         transcript,
       },
     });

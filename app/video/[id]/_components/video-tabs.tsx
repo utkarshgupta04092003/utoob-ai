@@ -306,7 +306,7 @@ export function VideoTabs({ video }: { video: any }) {
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 mb-[-1px] whitespace-nowrap ${
+            className={`px-5 py-3 text-base font-medium transition-colors border-b-2 mb-[-1px] whitespace-nowrap ${
               activeTab === tab.id
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted"
