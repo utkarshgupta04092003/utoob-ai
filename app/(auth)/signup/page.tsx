@@ -10,37 +10,40 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-function LoginContent() {
+export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const message = searchParams.get("message");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (res?.error) {
-      setError("Failed to sign in. Please try again.");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      router.push("/login?message=Account created successfully. Please login.");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
     }
   };
 
@@ -55,22 +58,17 @@ function LoginContent() {
       <Card className="w-full max-w-md border-border/50 bg-background/50 backdrop-blur-xl shadow-2xl">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold tracking-tight">
-            Welcome back
+            Create an account
           </CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email and password to get started
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {message && (
-            <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-600 text-sm font-medium">
-              {message}
-            </div>
-          )}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
               <label
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none"
                 htmlFor="email"
               >
                 Email
@@ -86,7 +84,7 @@ function LoginContent() {
             </div>
             <div className="space-y-2">
               <label
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none"
                 htmlFor="password"
               >
                 Password
@@ -103,36 +101,22 @@ function LoginContent() {
               <p className="text-sm text-red-500 font-medium">{error}</p>
             )}
             <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="text-center">
           <p className="text-sm text-muted-foreground w-full">
-            Don&apos;t have an account?{" "}
+            Already have an account?{" "}
             <Link
-              href="/signup"
+              href="/login"
               className="text-primary hover:underline font-medium"
             >
-              Sign up
+              Log in
             </Link>
           </p>
         </CardFooter>
       </Card>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          Loading...
-        </div>
-      }
-    >
-      <LoginContent />
-    </Suspense>
   );
 }

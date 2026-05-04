@@ -1,3 +1,4 @@
+import { SignOutButton } from "@/components/sign-out-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { authOptions } from "@/lib/auth";
 import { APP_CONFIG } from "@/lib/config";
@@ -36,12 +37,7 @@ export default async function DashboardLayout({
               <Settings className="w-4 h-4" />
               <span className="hidden md:inline">Settings</span>
             </Link>
-            <Link
-              href="/api/auth/signout"
-              className="text-sm font-medium hover:underline px-3 py-2"
-            >
-              Sign out
-            </Link>
+            <SignOutButton />
           </div>
         </div>
       </header>

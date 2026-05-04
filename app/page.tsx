@@ -11,7 +11,6 @@ import {
   Youtube,
   Zap,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -76,17 +75,96 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Hero Visual */}
+            {/* Hero Visual - Skeleton Dashboard */}
             <div className="mt-20 relative max-w-6xl mx-auto animate-in fade-in zoom-in duration-1000 delay-500">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-[2.5rem] blur opacity-25"></div>
-              <div className="relative bg-card rounded-[2.5rem] border border-border shadow-2xl overflow-hidden aspect-[16/10]">
-                <Image
-                  src="/clean-mockup.png"
-                  alt="App Dashboard Preview"
-                  fill
-                  className="object-cover"
-                  priority
-                />
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-[2.5rem] blur opacity-20"></div>
+              <div className="relative bg-[#0a0a0a] rounded-[2rem] border border-white/5 shadow-2xl overflow-hidden min-h-[500px] flex flex-col">
+                {/* Dashboard Header Mockup */}
+                <div className="h-16 border-b border-white/5 bg-white/[0.02] flex items-center px-8 justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-primary/20 w-8 h-8 rounded-lg flex items-center justify-center">
+                      <Youtube className="h-4 w-4 text-primary" />
+                    </div>
+                    <span className="text-sm font-bold tracking-tight">
+                      uToob AI
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10"></div>
+                    <div className="h-8 w-20 bg-white/5 rounded-md border border-white/10"></div>
+                    <div className="h-8 w-20 bg-white/5 rounded-md border border-white/10"></div>
+                  </div>
+                </div>
+
+                {/* Dashboard Content Mockup */}
+                <div className="p-8 md:p-12 space-y-10">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <h2 className="text-3xl font-bold">Your Videos</h2>
+                    <div className="flex gap-3 w-full md:w-auto">
+                      <div className="h-11 flex-1 md:w-64 bg-white/5 rounded-lg border border-white/10 px-4 flex items-center text-[10px] text-muted-foreground italic">
+                        https://youtube.com/watch?v=...
+                      </div>
+                      <div className="h-11 w-32 bg-primary/20 rounded-lg border border-primary/30 flex items-center justify-center text-[10px] font-bold text-primary uppercase tracking-wider">
+                        Ingest Video
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Video Cards Grid with Dummy Text */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {[
+                      {
+                        title: "Mastering React 19 in 10 Minutes",
+                        author: "Dev Mastery",
+                        url: "youtube.com/react-19",
+                      },
+                      {
+                        title: "Deep Dive into Gemini AI API",
+                        author: "Google Developers",
+                        url: "youtube.com/gemini-pro",
+                      },
+                      {
+                        title: "Building a SaaS with Next.js",
+                        author: "UI Labs",
+                        url: "youtube.com/nextjs-saas",
+                      },
+                    ].map((video, i) => (
+                      <div
+                        key={i}
+                        className="rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden space-y-4 pb-6 group"
+                      >
+                        <div className="aspect-video bg-white/5 relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
+                          <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                            <Youtube className="h-12 w-12 text-white" />
+                          </div>
+                        </div>
+                        <div className="px-6 space-y-3">
+                          <div className="h-4 w-full bg-white/10 rounded-full overflow-hidden">
+                            <div className="h-full bg-white/10 w-full animate-pulse"></div>
+                          </div>
+                          <h4 className="text-sm font-bold line-clamp-1 opacity-80">
+                            {video.title}
+                          </h4>
+                          <div className="flex items-center gap-2 pt-1">
+                            <span className="text-[10px] font-bold text-primary">
+                              {video.author}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              •
+                            </span>
+                            <span className="text-[10px] text-muted-foreground truncate">
+                              {video.url}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bottom Shine */}
+                <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-primary/5 to-transparent pointer-events-none"></div>
               </div>
             </div>
           </div>
@@ -219,23 +297,60 @@ export default function Home() {
                     <span>Chat with Video</span>
                   </div>
 
-                  {/* Card Mockup mirroring the screenshot */}
+                  {/* Card Mockup - Pure UI */}
                   <div className="p-8">
-                    <div className="max-w-xl mx-auto bg-[#1a1a1a] border border-white/10 rounded-3xl p-8 relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="space-y-2 text-center md:text-left">
-                          <h3 className="text-2xl font-bold">Study Quiz</h3>
-                          <p className="text-sm text-muted-foreground max-w-[280px]">
-                            Test your knowledge with multiple choice questions.
-                          </p>
+                    <div className="max-w-xl mx-auto space-y-6">
+                      <div className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-8 relative overflow-hidden group">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                          <div className="space-y-1">
+                            <h3 className="text-xl font-bold">Study Quiz</h3>
+                            <p className="text-xs text-muted-foreground">
+                              Question 1 of 5
+                            </p>
+                          </div>
+                          <div className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-bold text-primary border border-primary/20 uppercase tracking-wider">
+                            Active
+                          </div>
                         </div>
-                        <Button className="h-12 px-8 rounded-2xl bg-primary text-primary-foreground font-bold hover:scale-105 transition-transform shadow-lg shadow-primary/20">
-                          Generate
-                        </Button>
-                      </div>
-                      <div className="mt-6 pt-6 border-t border-white/5 text-sm text-muted-foreground italic text-center md:text-left">
-                        No quiz generated yet.
+
+                        {/* Simulated Question */}
+                        <div className="space-y-4">
+                          <div className="h-4 w-full bg-white/5 rounded-full"></div>
+                          <div className="h-4 w-3/4 bg-white/5 rounded-full"></div>
+
+                          <div className="grid gap-3 pt-4">
+                            {[
+                              {
+                                text: "Option A: Correct answer placeholder",
+                                selected: true,
+                                correct: true,
+                              },
+                              {
+                                text: "Option B: Incorrect answer style",
+                                selected: false,
+                                correct: false,
+                              },
+                              {
+                                text: "Option C: Neutral answer style",
+                                selected: false,
+                                correct: false,
+                              },
+                            ].map((opt, i) => (
+                              <div
+                                key={i}
+                                className={`p-4 rounded-xl border text-xs font-medium transition-all ${
+                                  opt.selected
+                                    ? opt.correct
+                                      ? "bg-green-500/10 border-green-500/30 text-green-500"
+                                      : "bg-red-500/10 border-red-500/30 text-red-500"
+                                    : "bg-white/[0.02] border-white/5 text-muted-foreground hover:bg-white/5"
+                                }`}
+                              >
+                                {opt.text}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
