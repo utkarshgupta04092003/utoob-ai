@@ -15,6 +15,8 @@ import { DeleteVideo } from "./_components/delete-video";
 import { ExternalLinkButton } from "./_components/external-link-button";
 import { HighResImage } from "./_components/high-res-image";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const session = await requireAuth();
   const userId = session.user.id;
