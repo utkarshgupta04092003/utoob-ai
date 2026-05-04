@@ -5,6 +5,8 @@ import { posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     const session = await requireAuth();
