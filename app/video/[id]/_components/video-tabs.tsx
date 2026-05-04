@@ -15,7 +15,7 @@ import { ENDPOINTS } from "@/lib/endpoint";
 import { cn } from "@/lib/utils";
 import { useAPIKey } from "@/providers/api-key-provider";
 import { Bot, Check, Copy, Send, User } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 function CopyButton({ text }: { text: string }) {
@@ -134,7 +134,22 @@ function QuizQuestion({
 
 export function VideoTabs({ video }: { video: any }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("summary");
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentTab = searchParams.get("tab") || "summary";
+  const [activeTab, setActiveTab] = useState(currentTab);
+
+  useEffect(() => {
+    setActiveTab(currentTab);
+  }, [currentTab]);
+
+  const handleTabChange = (id: string) => {
+    setActiveTab(id);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", id);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
   const { provider, model, apiKey } = useAPIKey();
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -290,7 +305,7 @@ export function VideoTabs({ video }: { video: any }) {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 mb-[-1px] whitespace-nowrap ${
               activeTab === tab.id
                 ? "border-primary text-primary"
