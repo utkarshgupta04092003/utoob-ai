@@ -20,14 +20,12 @@ function getClient({
   apiKey: string;
 }) {
   if (provider === PROVIDERS.OPENAI) {
-    return new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-  } else {
-    return new OpenAI({
-      apiKey,
-      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-      dangerouslyAllowBrowser: true,
-    });
+    return new OpenAI({ apiKey });
   }
+  return new OpenAI({
+    apiKey,
+    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+  });
 }
 
 export async function validateKey({
