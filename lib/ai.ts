@@ -85,7 +85,10 @@ export async function generateJson<T extends z.ZodTypeAny>(
   system?: string,
 ): Promise<z.infer<T>> {
   const openai = getClient({ provider, apiKey });
-
+  console.log(
+    { provider, apiKey, model, schema, schemaName, system },
+    "Generate json log",
+  );
   try {
     const response = await openai.chat.completions.create({
       model: model,
