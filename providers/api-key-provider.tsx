@@ -1,6 +1,7 @@
 "use client";
 
 import { Provider } from "@/lib/ai";
+import { APP_CONFIG, PROVIDERS } from "@/lib/config";
 import * as React from "react";
 
 type APIKeyContextType = {
@@ -17,8 +18,12 @@ export const APIKeyContext = React.createContext<APIKeyContextType | undefined>(
 );
 
 export function APIKeyProvider({ children }: { children: React.ReactNode }) {
-  const [provider, setProviderState] = React.useState<Provider>("gemini");
-  const [model, setModelState] = React.useState<string>("gemini-1.5-flash");
+  const [provider, setProviderState] = React.useState<Provider>(
+    PROVIDERS.GEMINI,
+  );
+  const [model, setModelState] = React.useState<string>(
+    APP_CONFIG.models.gemini[0].id,
+  );
   const [apiKey, setApiKeyState] = React.useState<string>("");
 
   React.useEffect(() => {
@@ -28,16 +33,25 @@ export function APIKeyProvider({ children }: { children: React.ReactNode }) {
     const savedModel = localStorage.getItem("ai_model");
     const savedKey = localStorage.getItem("ai_api_key");
     if (savedProvider) setProviderState(savedProvider);
-    if (savedModel) setModelState(savedModel);
+    if (savedModel) {
+      setModelState(savedModel);
+    } else {
+      const defaultModel =
+        (savedProvider ?? PROVIDERS.GEMINI) === PROVIDERS.OPENAI
+          ? APP_CONFIG.models.openai[1].id
+          : APP_CONFIG.models.gemini[0].id;
+      setModel(defaultModel);
+    }
     if (savedKey) setApiKeyState(savedKey);
   }, []);
 
   const setProvider = (newProvider: Provider) => {
     localStorage.setItem("ai_provider", newProvider);
     setProviderState(newProvider);
-    // When provider changes, set a default model for that provider
     const defaultModel =
-      newProvider === "openai" ? "gpt-4o-mini" : "gemini-1.5-flash";
+      newProvider === PROVIDERS.OPENAI
+        ? APP_CONFIG.models.openai[1].id
+        : APP_CONFIG.models.gemini[0].id;
     setModel(defaultModel);
   };
 
