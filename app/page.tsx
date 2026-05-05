@@ -1,6 +1,8 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { authOptions } from "@/lib/auth";
+import { APP_CONFIG } from "@/lib/config";
 import {
   BookOpen,
   Brain,
@@ -11,9 +13,11 @@ import {
   Youtube,
   Zap,
 } from "lucide-react";
+import { getServerSession } from "next-auth";
 import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions);
   return (
     <div className="flex flex-col min-h-screen bg-background selection:bg-primary/30">
       {/* Navigation */}
@@ -23,22 +27,26 @@ export default function Home() {
             <div className="bg-primary rounded-lg p-1.5">
               <Youtube className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight">uToob AI</span>
+            <span className="text-xl font-bold tracking-tight">
+              {APP_CONFIG.appName}
+            </span>
           </div>
-          <nav className="hidden md:flex gap-8 items-center text-sm font-medium text-muted-foreground">
-            <Link
-              href="#features"
-              className="hover:text-primary transition-colors"
-            >
-              Features
-            </Link>
-            <Link href="/dashboard">
+          <div className="flex items-center gap-3">
+            <nav className="hidden md:flex gap-8 items-center text-sm font-medium text-muted-foreground mr-4">
+              <Link
+                href="#features"
+                className="hover:text-primary transition-colors"
+              >
+                Features
+              </Link>
+            </nav>
+            <Link href={session ? "/dashboard" : "/login"}>
               <Button size="sm" className="rounded-full px-5">
-                Dashboard
+                {session ? "Dashboard" : "Sign In"}
               </Button>
             </Link>
             <ThemeToggle />
-          </nav>
+          </div>
         </div>
       </header>
 
@@ -65,12 +73,12 @@ export default function Home() {
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
-              <Link href="/dashboard">
+              <Link href={session ? "/dashboard" : "/login"}>
                 <Button
                   size="lg"
                   className="h-14 px-10 rounded-full text-lg font-bold shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
                 >
-                  Try for Free
+                  {session ? "Dashboard" : "Try for Free"}
                 </Button>
               </Link>
             </div>
@@ -78,30 +86,30 @@ export default function Home() {
             {/* Hero Visual - Skeleton Dashboard */}
             <div className="mt-20 relative max-w-6xl mx-auto animate-in fade-in zoom-in duration-1000 delay-500">
               <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-[2.5rem] blur opacity-20"></div>
-              <div className="relative bg-[#0a0a0a] rounded-[2rem] border border-white/5 shadow-2xl overflow-hidden min-h-[500px] flex flex-col">
+              <div className="relative bg-card rounded-[2rem] border border-border shadow-2xl overflow-hidden min-h-[500px] flex flex-col">
                 {/* Dashboard Header Mockup */}
-                <div className="h-16 border-b border-white/5 bg-white/[0.02] flex items-center px-8 justify-between">
+                <div className="h-16 border-b border-border bg-muted/20 flex items-center px-4 md:px-8 justify-between">
                   <div className="flex items-center gap-2">
                     <div className="bg-primary/20 w-8 h-8 rounded-lg flex items-center justify-center">
                       <Youtube className="h-4 w-4 text-primary" />
                     </div>
-                    <span className="text-sm font-bold tracking-tight">
-                      uToob AI
+                    <span className="text-sm font-bold tracking-tight whitespace-nowrap">
+                      {APP_CONFIG.appName}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10"></div>
-                    <div className="h-8 w-20 bg-white/5 rounded-md border border-white/10"></div>
-                    <div className="h-8 w-20 bg-white/5 rounded-md border border-white/10"></div>
+                  <div className="flex items-center gap-2 md:gap-4">
+                    <div className="w-8 h-8 rounded-full bg-muted border border-border"></div>
+                    <div className="hidden sm:block h-8 w-20 bg-muted rounded-md border border-border"></div>
+                    <div className="hidden md:block h-8 w-20 bg-muted rounded-md border border-border"></div>
                   </div>
                 </div>
 
                 {/* Dashboard Content Mockup */}
-                <div className="p-8 md:p-12 space-y-10">
+                <div className="p-4 sm:p-8 md:p-12 space-y-10">
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                     <h2 className="text-3xl font-bold">Your Videos</h2>
                     <div className="flex gap-3 w-full md:w-auto">
-                      <div className="h-11 flex-1 md:w-64 bg-white/5 rounded-lg border border-white/10 px-4 flex items-center text-[10px] text-muted-foreground italic">
+                      <div className="h-11 flex-1 md:w-64 bg-muted/50 rounded-lg border border-border px-4 flex items-center text-[10px] text-muted-foreground italic">
                         https://youtube.com/watch?v=...
                       </div>
                       <div className="h-11 w-32 bg-primary/20 rounded-lg border border-primary/30 flex items-center justify-center text-[10px] font-bold text-primary uppercase tracking-wider">
@@ -131,17 +139,17 @@ export default function Home() {
                     ].map((video, i) => (
                       <div
                         key={i}
-                        className="rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden space-y-4 pb-6 group"
+                        className="rounded-2xl border border-border bg-muted/20 overflow-hidden space-y-4 pb-6 group"
                       >
-                        <div className="aspect-video bg-white/5 relative overflow-hidden">
+                        <div className="aspect-video bg-muted relative overflow-hidden">
                           <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
                           <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                            <Youtube className="h-12 w-12 text-white" />
+                            <Youtube className="h-12 w-12 text-foreground" />
                           </div>
                         </div>
                         <div className="px-6 space-y-3">
-                          <div className="h-4 w-full bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-white/10 w-full animate-pulse"></div>
+                          <div className="h-4 w-full bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-muted w-full animate-pulse"></div>
                           </div>
                           <h4 className="text-sm font-bold line-clamp-1 opacity-80">
                             {video.title}
@@ -260,9 +268,10 @@ export default function Home() {
                   Master any topic <br /> with AI-powered Quizzes
                 </h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Don&apos;t just watch—learn. uToob AI automatically generates
-                  challenging quizzes based on the video content, helping you
-                  reinforce your knowledge and track your progress instantly.
+                  Don&apos;t just watch—learn. {APP_CONFIG.appName}{" "}
+                  automatically generates challenging quizzes based on the video
+                  content, helping you reinforce your knowledge and track your
+                  progress instantly.
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   {[
@@ -285,9 +294,9 @@ export default function Home() {
                 <div className="absolute -inset-4 bg-gradient-to-tr from-primary/30 to-secondary/30 blur-2xl opacity-50 rounded-[2.5rem]"></div>
 
                 {/* Real App UI Mockup */}
-                <div className="relative bg-[#0a0a0a] border border-border/50 rounded-[2rem] shadow-2xl overflow-hidden pb-12">
+                <div className="relative bg-card border border-border rounded-[2rem] shadow-2xl overflow-hidden pb-12">
                   {/* Top Nav Mockup */}
-                  <div className="p-6 border-b border-white/5 flex items-center justify-center gap-6 text-xs font-medium text-muted-foreground overflow-x-auto whitespace-nowrap">
+                  <div className="p-6 border-b border-border/50 flex items-center gap-6 text-xs font-medium text-muted-foreground overflow-x-auto whitespace-nowrap">
                     <span>Summary</span>
                     <span>AI Notes</span>
                     <span className="text-primary border-b-2 border-primary pb-1">
@@ -298,9 +307,9 @@ export default function Home() {
                   </div>
 
                   {/* Card Mockup - Pure UI */}
-                  <div className="p-8">
+                  <div className="p-4 md:p-8">
                     <div className="max-w-xl mx-auto space-y-6">
-                      <div className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-8 relative overflow-hidden group">
+                      <div className="bg-muted/30 border border-border/50 rounded-3xl p-4 sm:p-8 relative overflow-hidden group">
                         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
                           <div className="space-y-1">
                             <h3 className="text-xl font-bold">Study Quiz</h3>
@@ -315,8 +324,8 @@ export default function Home() {
 
                         {/* Simulated Question */}
                         <div className="space-y-4">
-                          <div className="h-4 w-full bg-white/5 rounded-full"></div>
-                          <div className="h-4 w-3/4 bg-white/5 rounded-full"></div>
+                          <div className="h-4 w-full bg-muted rounded-full"></div>
+                          <div className="h-4 w-3/4 bg-muted rounded-full"></div>
 
                           <div className="grid gap-3 pt-4">
                             {[
@@ -343,7 +352,7 @@ export default function Home() {
                                     ? opt.correct
                                       ? "bg-green-500/10 border-green-500/30 text-green-500"
                                       : "bg-red-500/10 border-red-500/30 text-red-500"
-                                    : "bg-white/[0.02] border-white/5 text-muted-foreground hover:bg-white/5"
+                                    : "bg-muted/20 border-border/50 text-muted-foreground hover:bg-muted/40"
                                 }`}
                               >
                                 {opt.text}
@@ -370,18 +379,18 @@ export default function Home() {
         {/* CTA Section */}
         <section className="py-32">
           <div className="container mx-auto px-6">
-            <div className="glass rounded-[3rem] p-12 md:p-24 text-center overflow-hidden relative">
+            <div className="glass rounded-[3rem] p-6 md:p-24 text-center overflow-hidden relative">
               <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
               <div className="relative z-10">
                 <h2 className="text-4xl md:text-6xl font-bold mb-8">
                   Ready to supercharge <br /> your YouTube experience?
                 </h2>
-                <Link href="/dashboard">
+                <Link href={session ? "/dashboard" : "/login"}>
                   <Button
                     size="lg"
                     className="h-16 px-12 rounded-full text-xl font-bold shadow-xl shadow-primary/20"
                   >
-                    Get Started for Free
+                    {session ? "Dashboard" : "Get Started for Free"}
                   </Button>
                 </Link>
               </div>
@@ -396,11 +405,11 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex items-center gap-2">
               <Youtube className="h-5 w-5 text-primary" />
-              <span className="text-lg font-bold">uToob AI</span>
+              <span className="text-lg font-bold">{APP_CONFIG.appName}</span>
             </div>
             <p className="text-sm text-muted-foreground text-center">
-              © 2026 uToob AI. All rights reserved. Built for creators by
-              creators.
+              © {new Date().getFullYear()} {APP_CONFIG.appName}. All rights
+              reserved. Built for creators by creators.
             </p>
             <div className="flex gap-6 text-sm font-medium text-muted-foreground">
               <Link href="#" className="hover:text-primary transition-colors">
