@@ -23,7 +23,7 @@ export default async function DashboardLayout({
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link
-            href="/dashboard"
+            href="/"
             className="font-bold text-xl tracking-tight text-primary"
           >
             {APP_CONFIG.appName}
