@@ -9,7 +9,7 @@ Return a JSON object with the following schema:
   "keyPoints": ["10-20 extremely detailed bullet points, each starting with a strong verb"],
   "deepInsights": ["5-8 non-obvious takeaways, mental models, or specific frameworks"],
   "actionableTakeaways": ["5-10 specific things the viewer can actually do after watching"],
-  "quotes": ["Impactful lines from the video (optional)"]
+  "quotes": ["Impactful lines from the video"]
 }
 
 CRITICAL RULES:
@@ -21,19 +21,19 @@ CRITICAL RULES:
 - Do NOT include timestamps.
 - Strictly return valid JSON matching the schema.`,
 
-  NOTES: `You are a master note-taker. Extract the most important insights from the following transcript into structured, detailed notes.
+  NOTES: `You are a master note-taker. Extract atleast 6-7 main points of the video  from the following transcript into structured, detailed notes.
 
 Return a JSON object with the following schema:
 { 
   "headings": [
     { 
       "title": "Section Title", 
-      "bullets": ["Detailed insight 1", "Detailed insight 2"] 
+      "bullets": ["Detailed insight 1 (50-70 words)", "Detailed insight 2 (50-70 words)"] 
     }
   ] 
 }
 
-Provide comprehensive headings and extremely detailed bullet points.`,
+Provide comprehensive headings and extremely detailed bullet points. Each bullet point must be 50-70 words long to ensure deep understanding.`,
 
   QUIZ: `You are an expert educator. Generate a 10-question multiple choice quiz based on the following transcript.
 
