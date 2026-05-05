@@ -17,6 +17,7 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const url = formData.get("url") as string;
+    const clientTranscript = formData.get("transcript") as string | null;
 
     if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
@@ -30,10 +31,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const [transcript, metadata] = await Promise.all([
-      fetchTranscript(url),
-      fetchVideoMetadata(url),
-    ]);
+    let transcript = clientTranscript;
+    let metadata;
+
+    if (!transcript) {
+      const [fetchedTranscript, fetchedMetadata] = await Promise.all([
+        fetchTranscript(url),
+        fetchVideoMetadata(url),
+      ]);
+      transcript = fetchedTranscript;
+      metadata = fetchedMetadata;
+    } else {
+      metadata = await fetchVideoMetadata(url);
+    }
 
     const video = await prisma.video.create({
       data: {
@@ -41,7 +51,7 @@ export async function POST(req: Request) {
         youtubeUrl: url,
         title: metadata.title,
         authorName: metadata.authorName,
-        transcript,
+        transcript: transcript as string,
       },
     });
 
