@@ -14,17 +14,8 @@ export async function POST(req: Request) {
 
     const { videoId, provider, apiKey, model } = await req.json();
 
-    console.log(
-      `[Quiz Flow] Start: User ${userId} | Video ${videoId} | Model ${model}`,
-    );
 
     if (!videoId || !provider || !apiKey || !model) {
-      console.warn(`[Quiz Flow] Missing fields:`, {
-        videoId,
-        provider,
-        hasKey: !!apiKey,
-        model,
-      });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -36,13 +27,8 @@ export async function POST(req: Request) {
     });
 
     if (!video) {
-      console.log(`[Quiz Flow] Video not found: ${videoId}`);
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
-
-    console.log(
-      `[Quiz Flow] Video found. Transcript length: ${video.transcript.length}`,
-    );
 
     const content = await generateJson(
       { provider: provider as Provider, apiKey, model },
@@ -51,13 +37,6 @@ export async function POST(req: Request) {
       "quiz",
       APP_CONFIG.prompts.quiz,
     );
-
-    console.log(
-      `[Quiz Flow] AI Generation successful. questions: ${content.questions?.length}`,
-    );
-
-    // Use a transaction to ensure deletion and creation are atomic
-    const dbStart = Date.now();
     const [_, quiz] = await prisma.$transaction([
       prisma.quiz.deleteMany({
         where: { videoId, userId },
@@ -70,27 +49,14 @@ export async function POST(req: Request) {
         },
       }),
     ]);
-
-    console.log(
-      `[Quiz Flow] DB operations successful in ${Date.now() - dbStart}ms`,
-    );
-
     posthog.capture({
       distinctId: userId,
       event: ANALYTICS_EVENTS.QUIZ_GENERATED,
       properties: { videoId, provider, model },
     });
-
-    const totalDuration = Date.now() - startTime;
-    console.log(
-      `[Quiz Flow] Completed successfully for video ${videoId} in ${totalDuration}ms`,
-    );
-
     return NextResponse.json({ data: quiz.questions });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong";
-    const duration = Date.now() - startTime;
-    console.log(`[Quiz Flow] FAILED after ${duration}ms:`, message);
     return NextResponse.json({ error: message }, { status: 500 });
   } finally {
     await posthog.shutdown();

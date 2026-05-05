@@ -84,7 +84,7 @@ export async function generateJson<T extends z.ZodTypeAny>(
 ): Promise<z.infer<T>> {
   const openai = getClient({ provider, apiKey });
   const startTime = Date.now();
-  console.log(
+  logger.info(
     `[AI] Generating JSON: ${schemaName} | Model: ${model} | Provider: ${provider}`,
   );
 
@@ -96,9 +96,7 @@ export async function generateJson<T extends z.ZodTypeAny>(
           ? [
               {
                 role: ROLES.SYSTEM,
-                content:
-                  system +
-                  "\n\nCRITICAL: You must return ONLY a valid JSON object matching the requested schema. No markdown, no prose, no code blocks.",
+                content: system,
               },
             ]
           : []),
