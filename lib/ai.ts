@@ -1,7 +1,6 @@
 import { PROVIDERS, ROLES } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import OpenAI from "openai";
-import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 export type Provider = (typeof PROVIDERS)[keyof typeof PROVIDERS];
@@ -83,10 +82,11 @@ export async function generateJson<T extends z.ZodTypeAny>(
   system?: string,
 ): Promise<z.infer<T>> {
   const openai = getClient({ provider, apiKey });
+  const startTime = Date.now();
   console.log(
-    { provider, apiKey, model, schema, schemaName, system },
-    "Generate json log",
+    `[AI] Generating JSON: ${schemaName} | Model: ${model} | Provider: ${provider}`,
   );
+
   try {
     const response = await openai.chat.completions.create({
       model: model,
@@ -97,21 +97,44 @@ export async function generateJson<T extends z.ZodTypeAny>(
                 role: ROLES.SYSTEM,
                 content:
                   system +
-                  "\n\nCRITICAL: You must return ONLY a valid JSON object matching the requested schema. Do not wrap it in markdown code blocks.",
+                  "\n\nCRITICAL: You must return ONLY a valid JSON object matching the requested schema. No markdown, no prose, no code blocks.",
               },
             ]
           : []),
         { role: ROLES.USER, content: prompt },
       ],
-      response_format: zodResponseFormat(schema, schemaName),
+      response_format: { type: "json_object" },
     });
 
     const content = response.choices[0].message.content || "";
-    const parsedData = JSON.parse(content);
-    const result = schema.parse(parsedData);
-    return result;
+    const duration = Date.now() - startTime;
+
+    // Clean potential markdown formatting
+    const cleanContent = content
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    try {
+      const parsedData = JSON.parse(cleanContent);
+      const result = schema.parse(parsedData);
+
+      logger.info(`[AI] Successfully generated ${schemaName} in ${duration}ms`);
+      return result;
+    } catch (parseError) {
+      logger.error(`[AI] Parsing Failed for ${schemaName}:`, {
+        error: parseError instanceof Error ? parseError.message : "Unknown",
+        rawContent: content.slice(0, 500) + "...",
+        duration,
+      });
+      throw new Error(`Failed to parse AI response into ${schemaName}`);
+    }
   } catch (error) {
-    logger.error("Structured Output Error:", error);
+    const duration = Date.now() - startTime;
+    logger.error(
+      `[AI] Generation Failed for ${schemaName} after ${duration}ms:`,
+      error,
+    );
     throw error;
   }
 }

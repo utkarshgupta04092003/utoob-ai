@@ -1,6 +1,5 @@
 import { generateJson, Provider } from "@/lib/ai";
 import { ANALYTICS_EVENTS, APP_CONFIG } from "@/lib/config";
-import { logger } from "@/lib/logger";
 import { posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
 import { QuizSchema } from "@/lib/schemas";
@@ -8,13 +7,24 @@ import { requireAuth } from "@/lib/session";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  const startTime = Date.now();
   try {
     const session = await requireAuth();
     const userId = session.user.id;
 
     const { videoId, provider, apiKey, model } = await req.json();
 
+    console.log(
+      `[Quiz Flow] Start: User ${userId} | Video ${videoId} | Model ${model}`,
+    );
+
     if (!videoId || !provider || !apiKey || !model) {
+      console.warn(`[Quiz Flow] Missing fields:`, {
+        videoId,
+        provider,
+        hasKey: !!apiKey,
+        model,
+      });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -26,8 +36,13 @@ export async function POST(req: Request) {
     });
 
     if (!video) {
+      console.log(`[Quiz Flow] Video not found: ${videoId}`);
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
+
+    console.log(
+      `[Quiz Flow] Video found. Transcript length: ${video.transcript.length}`,
+    );
 
     const content = await generateJson(
       { provider: provider as Provider, apiKey, model },
@@ -37,12 +52,12 @@ export async function POST(req: Request) {
       APP_CONFIG.prompts.quiz,
     );
 
-    logger.info(
-      "Generated Quiz Content:",
-      JSON.stringify(content).slice(0, 100) + "...",
+    console.log(
+      `[Quiz Flow] AI Generation successful. questions: ${content.questions?.length}`,
     );
 
     // Use a transaction to ensure deletion and creation are atomic
+    const dbStart = Date.now();
     const [_, quiz] = await prisma.$transaction([
       prisma.quiz.deleteMany({
         where: { videoId, userId },
@@ -56,7 +71,9 @@ export async function POST(req: Request) {
       }),
     ]);
 
-    logger.info("Successfully saved quiz to DB:", quiz.id);
+    console.log(
+      `[Quiz Flow] DB operations successful in ${Date.now() - dbStart}ms`,
+    );
 
     posthog.capture({
       distinctId: userId,
@@ -64,10 +81,16 @@ export async function POST(req: Request) {
       properties: { videoId, provider, model },
     });
 
+    const totalDuration = Date.now() - startTime;
+    console.log(
+      `[Quiz Flow] Completed successfully for video ${videoId} in ${totalDuration}ms`,
+    );
+
     return NextResponse.json({ data: quiz.questions });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong";
-    logger.error("Quiz Error:", message);
+    const duration = Date.now() - startTime;
+    console.log(`[Quiz Flow] FAILED after ${duration}ms:`, message);
     return NextResponse.json({ error: message }, { status: 500 });
   } finally {
     await posthog.shutdown();
