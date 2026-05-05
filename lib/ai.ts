@@ -87,21 +87,27 @@ export async function generateJson<T extends z.ZodTypeAny>(
   const openai = getClient({ provider, apiKey });
 
   try {
-    const response = await openai.beta.chat.completions.parse({
+    const response = await openai.chat.completions.create({
       model: model,
       messages: [
-        ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
+        ...(system
+          ? [
+              {
+                role: ROLES.SYSTEM,
+                content:
+                  system +
+                  "\n\nCRITICAL: You must return ONLY a valid JSON object matching the requested schema. Do not wrap it in markdown code blocks.",
+              },
+            ]
+          : []),
         { role: ROLES.USER, content: prompt },
       ],
       response_format: zodResponseFormat(schema, schemaName),
     });
 
-    const result = response.choices[0].message.parsed;
-
-    if (!result) {
-      throw new Error("Failed to parse AI response into the expected schema.");
-    }
-
+    const content = response.choices[0].message.content || "";
+    const parsedData = JSON.parse(content);
+    const result = schema.parse(parsedData);
     return result;
   } catch (error) {
     logger.error("Structured Output Error:", error);
