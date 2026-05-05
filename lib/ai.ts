@@ -103,7 +103,10 @@ export async function generateJson<T extends z.ZodTypeAny>(
           : []),
         { role: ROLES.USER, content: prompt },
       ],
-      response_format: { type: "json_object" },
+      // Gemini's OpenAI-compatible endpoint does not support response_format
+      ...(provider === PROVIDERS.OPENAI
+        ? { response_format: { type: "json_object" as const } }
+        : {}),
     });
 
     const content = response.choices[0].message.content || "";
