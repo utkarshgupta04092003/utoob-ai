@@ -109,7 +109,9 @@ export async function generateJson<T extends z.ZodTypeAny>(
     logger.info(
       `[AI] Successfully generated ${schemaName} (Structured Output) in ${duration}ms`,
     );
-    return response.choices[0].message.content as z.infer<T>;
+    const content = response.choices[0].message.content || "";
+    const parsed = schema.parse(JSON.parse(content));
+    return parsed as z.infer<T>;
   } catch (error: any) {
     const duration = Date.now() - startTime;
     logger.error(
