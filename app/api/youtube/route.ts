@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       properties: { videoId: video.id, youtubeId: videoId },
     });
 
-    return NextResponse.redirect(new URL(`/video/${video.id}`, req.url));
+    return NextResponse.json(video);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong";
     logger.error("YouTube Ingestion Error:", message);

@@ -14,6 +14,7 @@ import Link from "next/link";
 import { DeleteVideo } from "./_components/delete-video";
 import { ExternalLinkButton } from "./_components/external-link-button";
 import { HighResImage } from "./_components/high-res-image";
+import { VideoIngestionForm } from "./_components/video-ingestion-form";
 
 export const dynamic = "force-dynamic";
 
@@ -30,18 +31,7 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-4xl font-bold tracking-tight">Your Videos</h1>
-        <form action={ENDPOINTS.YOUTUBE} method="POST" className="flex gap-2">
-          <input
-            type="url"
-            name="url"
-            placeholder="https://youtube.com/watch?v=..."
-            className="flex h-11 w-80 rounded-md border border-input bg-background px-4 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            required
-          />
-          <Button type="submit" size="lg">
-            Ingest Video
-          </Button>
-        </form>
+        <VideoIngestionForm />
       </div>
 
       {videos.length === 0 ? (
