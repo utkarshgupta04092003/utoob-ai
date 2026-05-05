@@ -340,7 +340,102 @@ export function VideoTabs({ video }: { video: any }) {
             </CardHeader>
             <CardContent>
               {localData.summary ? (
-                <MarkdownRenderer content={localData.summary} />
+                typeof localData.summary === "string" ? (
+                  <MarkdownRenderer content={localData.summary} />
+                ) : (
+                  <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold text-foreground">
+                        {localData.summary.title}
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed text-lg">
+                        {localData.summary.overview}
+                      </p>
+                    </div>
+
+                    {localData.summary.keyPoints && (
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-primary/80">
+                          Key Points
+                        </h4>
+                        <ul className="grid gap-3 sm:grid-cols-2">
+                          {localData.summary.keyPoints.map(
+                            (point: string, i: number) => (
+                              <li
+                                key={i}
+                                className="flex gap-3 p-3 rounded-xl bg-muted/30 border border-muted-foreground/5 text-sm leading-relaxed"
+                              >
+                                <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-[10px] font-bold text-primary">
+                                  {i + 1}
+                                </div>
+                                {point}
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      {localData.summary.deepInsights && (
+                        <div className="space-y-4 p-5 rounded-2xl bg-primary/[0.03] border border-primary/10">
+                          <h4 className="text-sm font-bold uppercase tracking-wider text-primary">
+                            Deep Insights
+                          </h4>
+                          <ul className="space-y-3">
+                            {localData.summary.deepInsights.map(
+                              (insight: string, i: number) => (
+                                <li key={i} className="flex gap-2 text-sm">
+                                  <span className="text-primary">•</span>
+                                  {insight}
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                      )}
+
+                      {localData.summary.actionableTakeaways && (
+                        <div className="space-y-4 p-5 rounded-2xl bg-green-500/[0.03] border border-green-500/10">
+                          <h4 className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400">
+                            Actionable Takeaways
+                          </h4>
+                          <ul className="space-y-3">
+                            {localData.summary.actionableTakeaways.map(
+                              (takeaway: string, i: number) => (
+                                <li key={i} className="flex gap-2 text-sm">
+                                  <span className="text-green-500">✓</span>
+                                  {takeaway}
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+
+                    {localData.summary.quotes &&
+                      localData.summary.quotes.length > 0 && (
+                        <div className="space-y-4">
+                          <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                            Important Quotes
+                          </h4>
+                          <div className="grid gap-4 italic">
+                            {localData.summary.quotes.map(
+                              (quote: string, i: number) => (
+                                <blockquote
+                                  key={i}
+                                  className="border-l-4 border-muted pl-4 py-1 text-muted-foreground"
+                                >
+                                  {quote}
+                                </blockquote>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      )}
+                  </div>
+                )
               ) : (
                 <div className="text-sm text-muted-foreground italic">
                   No summary generated yet.

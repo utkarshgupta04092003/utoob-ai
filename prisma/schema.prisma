@@ -52,7 +52,7 @@ model Summary {
   videoId   String   @db.ObjectId
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
   type      String // "detailed" | "short"
-  content   String
+  content   Json
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
 }

@@ -1,6 +1,8 @@
 import { PROVIDERS, ROLES } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import OpenAI from "openai";
+import { zodResponseFormat } from "openai/helpers/zod";
+import { z } from "zod";
 
 export type Provider = (typeof PROVIDERS)[keyof typeof PROVIDERS];
 
@@ -75,38 +77,34 @@ export async function generateStream(
   });
 }
 
-export async function generateJson(
+export async function generateJson<T extends z.ZodTypeAny>(
   { provider, apiKey, model }: AIClientOptions,
   prompt: string,
+  schema: T,
+  schemaName: string,
   system?: string,
-) {
+): Promise<z.infer<T>> {
   const openai = getClient({ provider, apiKey });
-  const response = await openai.chat.completions.create({
-    model: model,
-    response_format: { type: "json_object" },
-    messages: [
-      ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
-      { role: ROLES.USER, content: prompt },
-    ],
-  });
-
-  const content = response.choices[0].message.content || "{}";
 
   try {
-    // Clean potential markdown wrapping
-    const cleanContent = content.replace(/```json\n?|```/g, "").trim();
-    return JSON.parse(cleanContent);
-  } catch (error) {
-    logger.error("JSON Parsing Error:", error, "Raw Content:", content);
-    // Fallback attempt to find any JSON object in the string
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      try {
-        return JSON.parse(jsonMatch[0]);
-      } catch (innerError) {
-        throw new Error("Failed to parse AI response as JSON");
-      }
+    const response = await openai.beta.chat.completions.parse({
+      model: model,
+      messages: [
+        ...(system ? [{ role: ROLES.SYSTEM, content: system }] : []),
+        { role: ROLES.USER, content: prompt },
+      ],
+      response_format: zodResponseFormat(schema, schemaName),
+    });
+
+    const result = response.choices[0].message.parsed;
+
+    if (!result) {
+      throw new Error("Failed to parse AI response into the expected schema.");
     }
-    throw new Error("Failed to parse AI response as JSON");
+
+    return result;
+  } catch (error) {
+    logger.error("Structured Output Error:", error);
+    throw error;
   }
 }

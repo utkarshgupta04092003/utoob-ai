@@ -1,8 +1,9 @@
-import { generateText, Provider } from "@/lib/ai";
+import { generateJson, Provider } from "@/lib/ai";
 import { ANALYTICS_EVENTS, APP_CONFIG } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import { posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
+import { SummarySchema } from "@/lib/schemas";
 import { requireAuth } from "@/lib/session";
 import { NextResponse } from "next/server";
 
@@ -27,9 +28,11 @@ export async function POST(req: Request) {
     if (!video) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
-    const content = await generateText(
+    const content = await generateJson(
       { provider: provider as Provider, apiKey, model },
       `Transcript: ${video.transcript}`,
+      SummarySchema,
+      "summary",
       APP_CONFIG.prompts.summarize,
     );
 
@@ -43,7 +46,7 @@ export async function POST(req: Request) {
           userId,
           videoId,
           type: "detailed",
-          content: content || "",
+          content: content,
         },
       }),
     ]);
