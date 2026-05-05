@@ -1,6 +1,7 @@
 import { PROVIDERS, ROLES } from "@/lib/config";
 import { logger } from "@/lib/logger";
 import OpenAI from "openai";
+import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 export type Provider = (typeof PROVIDERS)[keyof typeof PROVIDERS];
@@ -103,36 +104,15 @@ export async function generateJson<T extends z.ZodTypeAny>(
           : []),
         { role: ROLES.USER, content: prompt },
       ],
-      // Gemini's OpenAI-compatible endpoint does not support response_format
-      ...(provider === PROVIDERS.OPENAI
-        ? { response_format: { type: "json_object" as const } }
-        : {}),
+      response_format: zodResponseFormat(schema, schemaName),
     });
 
-    const content = response.choices[0].message.content || "";
     const duration = Date.now() - startTime;
-
-    // Clean potential markdown formatting
-    const cleanContent = content
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    try {
-      const parsedData = JSON.parse(cleanContent);
-      const result = schema.parse(parsedData);
-
-      logger.info(`[AI] Successfully generated ${schemaName} in ${duration}ms`);
-      return result;
-    } catch (parseError) {
-      logger.error(`[AI] Parsing Failed for ${schemaName}:`, {
-        error: parseError instanceof Error ? parseError.message : "Unknown",
-        rawContent: content.slice(0, 500) + "...",
-        duration,
-      });
-      throw new Error(`Failed to parse AI response into ${schemaName}`);
-    }
-  } catch (error) {
+    logger.info(
+      `[AI] Successfully generated ${schemaName} (Structured Output) in ${duration}ms`,
+    );
+    return response.choices[0].message.content as z.infer<T>;
+  } catch (error: any) {
     const duration = Date.now() - startTime;
     logger.error(
       `[AI] Generation Failed for ${schemaName} after ${duration}ms:`,
