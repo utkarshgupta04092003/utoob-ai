@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ENDPOINTS } from "@/lib/endpoint";
-import { fetchTranscriptClient } from "@/lib/youtube-client";
 import { Loader2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,32 +17,22 @@ export function VideoIngestionForm() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-
     try {
-      const transcript = await fetchTranscriptClient(url);
-
       const formData = new FormData();
       formData.append("url", url);
-      if (transcript) {
-        formData.append("transcript", transcript);
-      }
       const response = await fetch(ENDPOINTS.YOUTUBE, {
         method: "POST",
         body: formData,
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || "Failed to ingest video");
       }
-
-      // Success! Clear input and navigate
       setUrl("");
       router.push(`/video/${data.id}`);
       router.refresh();
     } catch (err: any) {
-      console.error("Ingestion error:", err);
       setError(err.message);
     } finally {
       setIsLoading(false);
