@@ -1,15 +1,8 @@
 "use client";
 
+import { AuthLayout, Field } from "@/components/layout/auth-layout";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -48,75 +41,59 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/20 p-4">
-      <Link
-        href="/"
-        className="absolute top-8 left-8 text-sm font-medium text-muted-foreground hover:text-foreground"
-      >
-        &larr; Back to Home
-      </Link>
-      <Card className="w-full max-w-md border-border/50 bg-background/50 backdrop-blur-xl shadow-2xl">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold tracking-tight">
-            Create an account
-          </CardTitle>
-          <CardDescription>
-            Enter your email and password to get started
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                className="text-sm font-medium leading-none"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label
-                className="text-sm font-medium leading-none"
-                htmlFor="password"
-              >
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            {error && (
-              <p className="text-sm text-red-500 font-medium">{error}</p>
-            )}
-            <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? "Creating account..." : "Sign Up"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="text-center">
-          <p className="text-sm text-muted-foreground w-full">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-primary hover:underline font-medium"
-            >
-              Log in
-            </Link>
+    <AuthLayout
+      title="Create an account"
+      description="Free to start. Bring your own API key."
+      footer={
+        <p className="text-small text-muted-foreground">
+          Already have an account?{" "}
+          <Link
+            href="/login"
+            className="font-medium text-primary hover:underline"
+          >
+            Log in
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={handleSignup} className="space-y-5">
+        <Field
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Field
+          id="password"
+          label="Password"
+          type="password"
+          autoComplete="new-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        {error && (
+          <p className="flex items-center gap-2 text-small text-destructive">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {error}
           </p>
-        </CardFooter>
-      </Card>
-    </div>
+        )}
+
+        <Button
+          className="w-full gap-2"
+          size="lg"
+          type="submit"
+          disabled={loading}
+        >
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading ? "Creating account" : "Create account"}
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }
