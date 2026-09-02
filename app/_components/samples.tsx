@@ -11,7 +11,7 @@ function Frame({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-border bg-surface",
+        "min-w-0 overflow-hidden rounded-lg border border-border bg-surface",
         className,
       )}
     >
@@ -22,20 +22,23 @@ function Frame({
 
 function TabBar({ active }: { active: string }) {
   return (
-    <div className="flex gap-1 overflow-hidden border-b border-border px-4">
-      {["Summary", "Notes", "Quiz", "Social", "Chat"].map((t) => (
-        <span
-          key={t}
-          className={cn(
-            "-mb-px whitespace-nowrap border-b-2 px-2.5 py-2.5 text-small font-medium",
-            t === active
-              ? "border-primary text-foreground"
-              : "border-transparent text-muted-foreground",
-          )}
-        >
-          {t}
-        </span>
-      ))}
+    <div className="relative">
+      <div className="scrollbar-hide flex gap-1 overflow-x-auto border-b border-border px-4">
+        {["Summary", "Notes", "Quiz", "Social", "Chat"].map((t) => (
+          <span
+            key={t}
+            className={cn(
+              "-mb-px whitespace-nowrap border-b-2 px-2.5 py-2.5 text-small font-medium",
+              t === active
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground",
+            )}
+          >
+            {t}
+          </span>
+        ))}
+      </div>
+      <div className="pointer-events-none absolute bottom-px right-0 top-0 w-8 bg-gradient-to-l from-surface to-transparent" />
     </div>
   );
 }
@@ -44,7 +47,7 @@ export function NotesSample({ tall = false }: { tall?: boolean }) {
   return (
     <Frame>
       <TabBar active="Notes" />
-      <div className={cn("space-y-7 p-6", tall && "lg:p-8")}>
+      <div className={cn("space-y-7 p-5 sm:p-6", tall && "lg:p-8")}>
         <div className="space-y-2.5">
           <h3 className="font-display text-h2 text-foreground">
             Why the reconciler batches updates
@@ -93,14 +96,14 @@ export function SummarySample() {
   return (
     <Frame>
       <TabBar active="Summary" />
-      <div className="space-y-7 p-6">
+      <div className="space-y-7 p-5 sm:p-6">
         <div className="space-y-2.5">
           <h3 className="font-display text-h1 leading-tight text-foreground">
             How rendering actually works
           </h3>
           <p className="text-read leading-relaxed text-foreground">
-            A walk through the render, commit, and paint phases — and the
-            mental model that makes the rest of the API stop feeling arbitrary.
+            A walk through the render, commit, and paint phases — and the mental
+            model that makes the rest of the API stop feeling arbitrary.
           </p>
         </div>
 
@@ -142,7 +145,7 @@ export function QuizSample() {
   return (
     <Frame>
       <TabBar active="Quiz" />
-      <div className="space-y-5 p-6">
+      <div className="space-y-5 p-5 sm:p-6">
         <div className="flex items-center gap-4">
           <div className="flex flex-1 gap-1">
             <span className="h-1 flex-1 rounded-full bg-success" />
@@ -151,7 +154,9 @@ export function QuizSample() {
             <span className="h-1 flex-1 rounded-full bg-border" />
             <span className="h-1 flex-1 rounded-full bg-border" />
           </div>
-          <span className="font-mono text-small text-muted-foreground">2/5</span>
+          <span className="font-mono text-small text-muted-foreground">
+            2/5
+          </span>
         </div>
 
         <h3 className="font-display text-h2 leading-snug text-foreground">
@@ -196,7 +201,7 @@ export function ChatSample() {
   return (
     <Frame>
       <TabBar active="Chat" />
-      <div className="space-y-5 p-6">
+      <div className="space-y-5 p-5 sm:p-6">
         <div className="flex justify-end">
           <p className="max-w-[80%] rounded-lg rounded-br-sm bg-primary px-4 py-2.5 text-body text-primary-foreground">
             Did they say anything about error boundaries?

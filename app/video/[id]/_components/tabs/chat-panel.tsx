@@ -28,15 +28,15 @@ export function ChatPanel({
   }, [messages, loading]);
 
   return (
-    <section className="flex h-[calc(100vh-15rem)] min-h-[420px] flex-col">
-      <div className="border-b border-border pb-4">
+    <section className="flex h-[calc(100svh-11rem)] min-h-[420px] flex-col lg:h-[calc(100svh-15rem)] lg:min-h-[420px]">
+      <div className="border-b border-border pb-3 lg:pb-4">
         <h2 className="font-display text-h2 text-foreground">Chat</h2>
-        <p className="text-small text-muted-foreground">
+        <p className="hidden text-small text-muted-foreground sm:block">
           Ask anything; answers come from the transcript.
         </p>
       </div>
 
-      <div className="flex-1 space-y-6 overflow-y-auto py-6 scrollbar-hide">
+      <div className="flex-1 space-y-6 overflow-y-auto py-4 scrollbar-hide lg:py-6">
         {messages.length === 0 && (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted">

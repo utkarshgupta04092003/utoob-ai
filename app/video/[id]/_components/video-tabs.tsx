@@ -65,21 +65,24 @@ export function VideoTabs({ video }: { video: any }) {
       />
 
       <div className="min-w-0 flex-1">
-        <div className="mb-8 flex gap-1 overflow-x-auto border-b border-border scrollbar-hide">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
-              className={cn(
-                "-mb-px whitespace-nowrap border-b-2 px-3.5 py-2.5 text-body font-medium transition-colors",
-                activeTab === tab.id
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="relative mb-8">
+          <div className="flex gap-1 overflow-x-auto border-b border-border scrollbar-hide">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={cn(
+                  "-mb-px whitespace-nowrap border-b-2 px-3.5 py-2.5 text-body font-medium transition-colors",
+                  activeTab === tab.id
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className="pointer-events-none absolute bottom-px right-0 top-0 w-8 bg-gradient-to-l from-background to-transparent lg:hidden" />
         </div>
 
         {activeTab === "summary" && (

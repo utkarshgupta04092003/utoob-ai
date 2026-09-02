@@ -7,16 +7,16 @@ import * as React from "react";
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background lg:flex">
-      <aside className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border bg-background px-4 py-3 lg:h-screen lg:w-[220px] lg:shrink-0 lg:flex-col lg:items-stretch lg:justify-start lg:border-b-0 lg:border-r lg:px-3 lg:py-5">
-        <Wordmark />
+      <aside className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b border-border bg-background px-3 py-3 sm:gap-4 sm:px-4 lg:h-screen lg:w-[220px] lg:shrink-0 lg:flex-col lg:items-stretch lg:justify-start lg:border-b-0 lg:border-r lg:px-3 lg:py-5">
+        <Wordmark className="min-w-0" />
 
         <div className="hidden flex-1 lg:mt-8 lg:block">
           <SidebarNav />
         </div>
 
-        <div className="flex items-center gap-1 lg:flex-col lg:items-stretch lg:gap-2">
+        <div className="flex shrink-0 items-center gap-1 lg:flex-col lg:items-stretch lg:gap-2">
           <div className="lg:hidden">
-            <SidebarNav />
+            <SidebarNav compact />
           </div>
           <div className="flex items-center justify-between lg:border-t lg:border-border lg:pt-3">
             <ThemeToggle />

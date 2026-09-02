@@ -1,4 +1,5 @@
 import { Wordmark } from "@/components/layout/wordmark";
+import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { authOptions } from "@/lib/auth";
@@ -55,8 +56,8 @@ export default async function Home() {
 
       <main className="flex-1">
         <section className="mx-auto max-w-6xl overflow-hidden px-5 pb-20 pt-16 lg:overflow-visible lg:px-10 lg:pb-28 lg:pt-24">
-          <div className="grid items-center gap-14 lg:grid-cols-[1fr_1fr] lg:gap-16">
-            <div className="max-w-xl">
+          <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+            <div className="min-w-0 max-w-xl">
               <p className="font-mono text-small uppercase tracking-wide text-muted-foreground">
                 Gemini · OpenAI
               </p>
@@ -84,7 +85,7 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="lg:-mr-32">
+            <div className="min-w-0 lg:-mr-32">
               <NotesSample tall />
             </div>
           </div>
@@ -95,9 +96,9 @@ export default async function Home() {
             {BANDS.map((band, i) => (
               <div
                 key={band.label}
-                className="grid items-center gap-10 border-b border-border py-16 lg:grid-cols-2 lg:gap-16 lg:py-24"
+                className="grid items-center gap-10 border-b border-border py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16 lg:py-24"
               >
-                <div className={i % 2 === 1 ? "lg:order-2" : undefined}>
+                <div className={cn("min-w-0", i % 2 === 1 && "lg:order-2")}>
                   <p className="font-mono text-small uppercase tracking-wide text-muted-foreground">
                     {band.label}
                   </p>
@@ -108,7 +109,7 @@ export default async function Home() {
                     {band.body}
                   </p>
                 </div>
-                <div className={i % 2 === 1 ? "lg:order-1" : undefined}>
+                <div className={cn("min-w-0", i % 2 === 1 && "lg:order-1")}>
                   {band.sample}
                 </div>
               </div>
@@ -117,7 +118,7 @@ export default async function Home() {
         </section>
 
         <section className="mx-auto max-w-6xl px-5 py-20 lg:px-10 lg:py-28">
-          <div className="rounded-lg border border-border px-8 py-14 text-center lg:py-20">
+          <div className="rounded-lg border border-border px-5 py-14 text-center sm:px-8 lg:py-20">
             <h2 className="mx-auto max-w-lg font-display text-h1 leading-tight text-foreground">
               Your watch-later list is a graveyard. Fix it.
             </h2>

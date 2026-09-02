@@ -27,8 +27,8 @@ export function Panel({
 }) {
   return (
     <section className="space-y-6">
-      <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
-        <div className="space-y-1">
+      <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0 space-y-1">
           <h2 className="font-display text-h2 text-foreground">{title}</h2>
           <p className="text-small text-muted-foreground">{description}</p>
         </div>
@@ -36,7 +36,7 @@ export function Panel({
           variant={hasContent ? "outline" : "default"}
           disabled={loading}
           onClick={onGenerate}
-          className="shrink-0 gap-2"
+          className="shrink-0 gap-2 self-start"
         >
           {loading ? (
             <>
