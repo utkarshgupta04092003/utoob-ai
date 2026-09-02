@@ -33,13 +33,17 @@ export function APIKeyProvider({ children }: { children: React.ReactNode }) {
     const savedModel = localStorage.getItem("ai_model");
     const savedKey = localStorage.getItem("ai_api_key");
     if (savedProvider) setProviderState(savedProvider);
-    if (savedModel) {
+    const activeProvider = savedProvider ?? PROVIDERS.GEMINI;
+    const defaultModel =
+      activeProvider === PROVIDERS.OPENAI
+        ? APP_CONFIG.models.openai[1].id
+        : APP_CONFIG.models.gemini[0].id;
+    const isKnown = APP_CONFIG.models[activeProvider].some(
+      (m) => m.id === savedModel,
+    );
+    if (savedModel && isKnown) {
       setModelState(savedModel);
     } else {
-      const defaultModel =
-        (savedProvider ?? PROVIDERS.GEMINI) === PROVIDERS.OPENAI
-          ? APP_CONFIG.models.openai[1].id
-          : APP_CONFIG.models.gemini[0].id;
       setModel(defaultModel);
     }
     if (savedKey) setApiKeyState(savedKey);

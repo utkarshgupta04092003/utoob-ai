@@ -95,6 +95,12 @@ export function ChatPanel({
           placeholder="Ask a question about this video..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              if (!loading && input.trim()) onSend();
+            }
+          }}
           disabled={loading}
           className="h-10"
         />
