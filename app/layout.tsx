@@ -1,4 +1,5 @@
 import { PostHogProvider } from "@/app/providers/posthog-provider";
+import { ToastProvider } from "@/components/ui/toast";
 import { APP_CONFIG } from "@/lib/config";
 import { APIKeyProvider } from "@/providers/api-key-provider";
 import { AuthProvider } from "@/providers/auth-provider";
@@ -44,7 +45,9 @@ export default function RootLayout({
         <PostHogProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <AuthProvider>
-              <APIKeyProvider>{children}</APIKeyProvider>
+              <APIKeyProvider>
+                <ToastProvider>{children}</ToastProvider>
+              </APIKeyProvider>
             </AuthProvider>
           </ThemeProvider>
         </PostHogProvider>
