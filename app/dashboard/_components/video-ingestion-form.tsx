@@ -51,6 +51,12 @@ export function VideoIngestionForm() {
           className="h-11 pl-9 font-mono text-small"
           required
           disabled={isLoading}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (!isLoading && url.trim()) handleSubmit(e);
+            }
+          }}
         />
       </div>
       <Button

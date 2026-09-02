@@ -17,8 +17,8 @@ export const APP_CONFIG = {
         available: true,
       },
       {
-        id: "gemini-3-pro-preview",
-        name: "Gemini 3 Pro Preview",
+        id: "gemini-3.1-pro-preview",
+        name: "Gemini 3.1 Pro Preview",
         available: true,
       },
     ],

@@ -52,7 +52,7 @@ export default async function DashboardPage() {
                   />
                 </div>
                 <div className="space-y-1.5 pr-16">
-                  <h2 className="line-clamp-2 text-body font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
+                  <h2 className="line-clamp-2 font-sans text-body font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
                     {video.title}
                   </h2>
                   <p className="truncate text-small text-muted-foreground">
