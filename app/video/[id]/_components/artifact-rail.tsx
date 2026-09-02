@@ -45,7 +45,7 @@ export function ArtifactRail({
         </div>
 
         <div className="space-y-1.5">
-          <h2 className="text-body font-medium leading-snug text-foreground">
+          <h2 className="font-sans text-body font-medium leading-snug text-foreground">
             {video.title}
           </h2>
           <p className="text-small text-muted-foreground">

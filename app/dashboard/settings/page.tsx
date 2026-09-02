@@ -30,7 +30,7 @@ function Row({
   return (
     <div className="grid gap-4 border-t border-border py-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] sm:gap-8">
       <div className="space-y-1">
-        <h3 className="text-body font-medium text-foreground">{label}</h3>
+        <h3 className="font-sans text-body font-medium text-foreground">{label}</h3>
         <p className="text-small text-muted-foreground">{description}</p>
       </div>
       <div className="space-y-2">{children}</div>
