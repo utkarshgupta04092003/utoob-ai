@@ -15,8 +15,8 @@ const config: Config = {
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       fontSize: {
-        display: ["3.5rem", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
-        h1: ["2.25rem", { lineHeight: "1.15", letterSpacing: "-0.015em" }],
+        display: ["clamp(2.25rem, 8vw, 3.5rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
+        h1: ["clamp(1.75rem, 5.5vw, 2.25rem)", { lineHeight: "1.15", letterSpacing: "-0.015em" }],
         h2: ["1.5rem", { lineHeight: "1.25", letterSpacing: "-0.01em" }],
         h3: ["1.125rem", { lineHeight: "1.35" }],
         body: ["0.9375rem", { lineHeight: "1.6" }],

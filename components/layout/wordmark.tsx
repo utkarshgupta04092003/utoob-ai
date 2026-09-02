@@ -17,10 +17,10 @@ export function Wordmark({
         className,
       )}
     >
-      <span className="flex h-6 w-6 items-center justify-center rounded-sm bg-primary text-[13px] font-semibold leading-none text-primary-foreground">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-primary text-[13px] font-semibold leading-none text-primary-foreground">
         u
       </span>
-      <span className="font-display text-h3 leading-none text-foreground">
+      <span className="truncate font-display text-h3 leading-none text-foreground">
         {APP_CONFIG.appName}
       </span>
     </Link>
