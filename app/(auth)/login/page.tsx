@@ -1,15 +1,8 @@
 "use client";
 
+import { AuthLayout, Field } from "@/components/layout/auth-layout";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -45,92 +38,74 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/20 p-4">
-      <Link
-        href="/"
-        className="absolute top-8 left-8 text-sm font-medium text-muted-foreground hover:text-foreground"
-      >
-        &larr; Back to Home
-      </Link>
-      <Card className="w-full max-w-md border-border/50 bg-background/50 backdrop-blur-xl shadow-2xl">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold tracking-tight">
-            Welcome back
-          </CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {message && (
-            <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-600 text-sm font-medium">
-              {message}
-            </div>
-          )}
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                htmlFor="password"
-              >
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            {error && (
-              <p className="text-sm text-red-500 font-medium">{error}</p>
-            )}
-            <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="text-center">
-          <p className="text-sm text-muted-foreground w-full">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-primary hover:underline font-medium"
-            >
-              Sign up
-            </Link>
+    <AuthLayout
+      title="Welcome back"
+      description="Sign in to pick up where you left off."
+      footer={
+        <p className="text-small text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/signup"
+            className="font-medium text-primary hover:underline"
+          >
+            Sign up
+          </Link>
+        </p>
+      }
+    >
+      {message && (
+        <div className="mb-6 flex items-start gap-2.5 rounded-md border border-success/25 bg-success/5 p-3 text-small text-success">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+          {message}
+        </div>
+      )}
+
+      <form onSubmit={handleLogin} className="space-y-5">
+        <Field
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Field
+          id="password"
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        {error && (
+          <p className="flex items-center gap-2 text-small text-destructive">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {error}
           </p>
-        </CardFooter>
-      </Card>
-    </div>
+        )}
+
+        <Button
+          className="w-full gap-2"
+          size="lg"
+          type="submit"
+          disabled={loading}
+        >
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading ? "Signing in" : "Sign in"}
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }
 
 export default function LoginPage() {
   return (
     <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          Loading...
-        </div>
-      }
+      fallback={<div className="min-h-screen bg-background" />}
     >
       <LoginContent />
     </Suspense>
