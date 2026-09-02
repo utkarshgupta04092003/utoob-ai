@@ -1,76 +1,185 @@
 # uToob AI
 
-A full-stack, config-driven SaaS web application that turns YouTube videos into structured content, summaries, notes, quizzes, interactive chat, and viral social media posts using the power of AI.
+Turn any YouTube video into a summary, structured notes, a quiz, social posts, and a conversation you can search — powered by your own AI provider key.
+
+The transcript is fetched **once** at ingestion and reused by every feature, so generating a summary, a quiz, and a chat reply never re-downloads the same video.
+
+---
+
+## Architecture
+
+The system runs in two phases: a one-time **ingestion** per video, then **AI generation** per request.
+
+```mermaid
+flowchart TB
+    subgraph client["Browser"]
+        UI["Next.js App Router<br/>(React Server + Client Components)"]
+        LS["localStorage<br/>provider · model · API key"]
+    end
+
+    subgraph ingest["Ingestion — once per video"]
+        EX["extractVideoId()"]
+        SUP["Supadata API<br/>transcript"]
+        OEM["YouTube oEmbed<br/>title · author"]
+    end
+
+    subgraph server["Next.js API Routes"]
+        AUTH["NextAuth<br/>JWT session"]
+        GEN["/api/summarize · /api/notes<br/>/api/quiz · /api/social"]
+        CHAT["/api/chat<br/>streaming"]
+        YT["/api/youtube<br/>ingest · soft delete"]
+    end
+
+    subgraph ai["Unified AI Client — lib/ai.ts"]
+        JSON["generateJson()<br/>Zod-validated structured output"]
+        STREAM["generateStream()<br/>token-by-token"]
+        PROV{"OpenAI SDK<br/>· or ·<br/>Gemini<br/>(OpenAI-compatible)"}
+    end
+
+    DB[("MongoDB + Prisma<br/>user-scoped · soft-deleted<br/>compound indexes")]
+    PH["PostHog<br/>product analytics"]
+
+    UI -->|"YouTube URL"| YT
+    YT --> EX
+    EX --> SUP & OEM
+    SUP & OEM -->|"transcript + metadata"| DB
+
+    UI -->|"videoId + key from localStorage"| GEN
+    UI -->|"question"| CHAT
+    LS -.->|"key never persisted server-side"| UI
+
+    GEN & CHAT -->|"read transcript"| DB
+    GEN --> JSON
+    CHAT --> STREAM
+    JSON & STREAM --> PROV
+    PROV -->|"generated content"| DB
+    STREAM -.->|"streamed tokens"| UI
+    DB -->|"summary · notes · quiz · posts"| UI
+
+    AUTH -.->|"guards every route"| GEN & CHAT & YT
+    GEN & CHAT & YT -.->|"non-blocking"| PH
+```
+
+### Design decisions
+
+| Decision | Why |
+|---|---|
+| **Transcript fetched once** | Ingestion stores it in MongoDB; all five features read the same row. No repeat calls to Supadata. |
+| **Keys stored client-side** | API keys live in `localStorage` and travel per-request. Never written to the database. |
+| **OpenAI-compatible Gemini** | Gemini is reached through its OpenAI-compatible endpoint, so one client covers both providers and models stay swappable. |
+| **Zod-validated output** | Notes and quizzes use structured output parsed against a schema, so malformed AI responses fail loudly instead of rendering broken UI. |
+| **Chat streams** | Chat replies stream token-by-token; the other features return complete JSON. |
+| **Social generated in parallel** | LinkedIn and X posts are generated concurrently via `Promise.all`. |
+| **Soft deletes** | Nothing is hard-deleted. Every query filters `deleted: false` and is scoped to `userId`. |
+| **Non-blocking analytics** | PostHog events are batched and flushed fire-and-forget, so analytics never adds latency to a response. |
+
+---
 
 ## Features
 
-- **Multi-Model Support:** Choose between OpenAI (GPT-4o Mini) and Google Gemini (1.5 Flash).
-- **Interactive AI Chat:** Ask questions and chat directly with any video to extract deep insights instantly.
-- **Local API Keys:** API keys are stored securely in your browser's `localStorage` and never saved to the database.
-- **YouTube Ingestion:** Paste a YouTube URL to automatically extract its transcript.
-- **Dynamic Generation:** Generate detailed summaries, structured notes, and multiple-choice quizzes on demand.
-- **Social Media Engine:** Automatically generate highly engaging, hook-driven content formatted for LinkedIn and Twitter.
-- **Premium Design System:** Modern, theme-aware UI (Light/Dark Mode) with glassmorphism and custom responsive mockups.
-- **Config-Driven Branding:** Centralized application name and global configuration in `lib/config.ts` for easy customization.
-- **Auth-Aware UX:** Intelligent landing page that dynamically toggles between Dashboard and Sign-In actions based on authentication status.
-- **Secure Authentication:** Managed via NextAuth.js (Credentials Provider).
+- **Summaries** — overview, key points, deep insights, takeaways, and quotable lines
+- **Structured notes** — headed sections with bullets, ready for Notion or Obsidian
+- **Quizzes** — multiple-choice questions with explanations, one at a time, scored as you go
+- **Chat** — ask follow-up questions, answered from the transcript and streamed back
+- **Social posts** — hook-driven drafts for LinkedIn and X
+- **Bring your own key** — Google Gemini supported today; provider and model are switchable in Settings
+- **Light and dark themes**, responsive down to 320px
 
-## Tech Stack
+## Tech stack
 
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS, Framer Motion, Radix UI
-- **Database:** MongoDB
-- **ORM:** Prisma
-- **Auth:** NextAuth.js
-- **AI SDKs:** OpenAI API, `@google/generative-ai`
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS, Radix UI |
+| Database | MongoDB |
+| ORM | Prisma |
+| Auth | NextAuth.js (Credentials, JWT sessions) |
+| AI | OpenAI SDK — targets OpenAI and Gemini's OpenAI-compatible endpoint |
+| Validation | Zod |
+| Transcripts | Supadata API |
+| Analytics | PostHog |
 
-## Getting Started
+---
 
-### 1. Clone & Install
+## Getting started
 
-Ensure you have Node.js installed, then install the project dependencies:
-\`\`\`bash
+### 1. Install
+
+```bash
 npm install
-\`\`\`
+```
 
-### 2. Environment Variables
+### 2. Environment variables
 
-Create a \`.env\` file in the root directory and add the following keys:
-\`\`\`env
+Create a `.env` file in the project root:
 
-# Your MongoDB connection string
-
+```env
+# MongoDB connection string
 DATABASE_URL="mongodb+srv://<username>:<password>@cluster.mongodb.net/utube-ai?retryWrites=true&w=majority"
 
-# NextAuth configuration
-
+# NextAuth
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-super-secret-key-change-me-in-production"
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
 
-# Supadata API (for YouTube transcripts)
+# Supadata — YouTube transcripts (https://dash.supadata.ai)
+SUPADATA_API_KEY="your_supadata_api_key"
 
-# Sign up at: https://dash.supadata.ai
+# PostHog — optional; analytics degrade gracefully if unset
+NEXT_PUBLIC_POSTHOG_KEY=""
+NEXT_PUBLIC_POSTHOG_HOST="https://us.i.posthog.com"
+```
 
-SUPADATA_API_KEY="your_supadata_api_key_here"
-\`\`\`
+Your **AI provider key is not an environment variable** — add it in the app under Settings. It stays in your browser.
 
-### 3. Database Setup
+### 3. Database
 
-Push the Prisma schema to your MongoDB instance and generate the Prisma Client:
-\`\`\`bash
-npx prisma db push
+```bash
+npx prisma db push    # creates collections and indexes
 npx prisma generate
-\`\`\`
+```
 
-### 4. Run the Development Server
+> `db push` is what creates the compound indexes on MongoDB. Run it against **every** environment — editing `schema.prisma` alone has no effect on a database you haven't pushed to.
 
-Start the Next.js local development server:
-\`\`\`bash
+### 4. Run
+
+```bash
 npm run dev
-\`\`\`
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+```
+
+Open [http://localhost:3000](http://localhost:3000), create an account, then add your Gemini key in Settings before generating anything.
+
+---
+
+## Project layout
+
+```
+app/
+  api/            route handlers — auth, ingest, and one per AI feature
+  dashboard/      library grid and settings
+  video/[id]/     two-pane reader: artifact rail + tab panels
+components/
+  layout/         app shell, sidebar, auth layout
+  ui/             primitives — button, card, toast, badge, select…
+lib/
+  ai.ts           unified client: generateJson, generateStream
+  config.ts       app name, model list, prompts, limits
+  schemas.ts      Zod schemas for structured output
+  youtube.ts      video ID extraction, transcript, oEmbed metadata
+prisma/
+  schema.prisma   models and compound indexes
+```
 
 ## Configuration
 
-All core configurations (prompts, model names, and limits) are centralized in \`lib/config.ts\`. You can easily tweak the AI output style or swap models without digging through the API routes.
+Prompts, model lists, and limits live in `lib/config.ts`. You can change the AI output style or add a model without touching the API routes.
+
+## Scripts
+
+```bash
+npm run dev           # development server
+npm run build         # production build
+npm run start         # serve the production build
+npm run lint          # eslint
+npm run check-types   # tsc --noEmit
+```
