@@ -89,6 +89,49 @@ export function NotesSample({ tall = false }: { tall?: boolean }) {
   );
 }
 
+export function SummarySample() {
+  return (
+    <Frame>
+      <TabBar active="Summary" />
+      <div className="space-y-7 p-6">
+        <div className="space-y-2.5">
+          <h3 className="font-display text-h1 leading-tight text-foreground">
+            How rendering actually works
+          </h3>
+          <p className="text-read leading-relaxed text-foreground">
+            A walk through the render, commit, and paint phases — and the
+            mental model that makes the rest of the API stop feeling arbitrary.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <p className="font-mono text-small uppercase tracking-wide text-muted-foreground">
+            Key points
+          </p>
+          <ul className="grid gap-2.5 sm:grid-cols-2">
+            {[
+              "Rendering is a pure function of props and state.",
+              "Committing is the only phase that touches the DOM.",
+              "Keys tell the reconciler what identity means.",
+              "Memoization is a cache, not a correctness fix.",
+            ].map((p, i) => (
+              <li
+                key={p}
+                className="flex gap-3 rounded-md border border-border p-3 text-body leading-relaxed text-foreground"
+              >
+                <span className="font-mono text-small text-muted-foreground">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Frame>
+  );
+}
+
 export function QuizSample() {
   const options = [
     { text: "It flushes each setState immediately", state: "idle" },

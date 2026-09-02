@@ -6,14 +6,19 @@ import { APP_CONFIG } from "@/lib/config";
 import { ArrowRight } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
-import { ChatSample, NotesSample, QuizSample } from "./_components/samples";
+import {
+  ChatSample,
+  NotesSample,
+  QuizSample,
+  SummarySample,
+} from "./_components/samples";
 
 const BANDS = [
   {
     label: "Read",
     title: "The whole video, in the time it takes to drink coffee",
     body: "A structured summary with key points, deep insights, and the quotes worth keeping. Set like an article, not dumped like a chat log.",
-    sample: <NotesSample />,
+    sample: <SummarySample />,
   },
   {
     label: "Test",
@@ -49,7 +54,7 @@ export default async function Home() {
       </header>
 
       <main className="flex-1">
-        <section className="mx-auto max-w-6xl px-5 pb-20 pt-16 lg:px-10 lg:pb-28 lg:pt-24">
+        <section className="mx-auto max-w-6xl overflow-hidden px-5 pb-20 pt-16 lg:overflow-visible lg:px-10 lg:pb-28 lg:pt-24">
           <div className="grid items-center gap-14 lg:grid-cols-[1fr_1fr] lg:gap-16">
             <div className="max-w-xl">
               <p className="font-mono text-small uppercase tracking-wide text-muted-foreground">

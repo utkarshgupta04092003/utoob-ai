@@ -93,8 +93,7 @@
       "cv11";
   }
   h1,
-  h2,
-  h3 {
+  h2 {
     @apply font-display tracking-normal;
   }
   ::selection {
