@@ -2,21 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 import { ENDPOINTS } from "@/lib/endpoint";
-import { Loader2, Plus } from "lucide-react";
+import { ArrowRight, Loader2, Youtube } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function VideoIngestionForm() {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
     try {
       const formData = new FormData();
       formData.append("url", url);
@@ -33,48 +33,44 @@ export function VideoIngestionForm() {
       router.push(`/video/${data.id}`);
       router.refresh();
     } catch (err: any) {
-      setError(err.message);
+      toast(err.message, "error");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <div className="relative flex-1">
+        <Youtube className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://youtube.com/watch?v=..."
-          className="h-11 w-80"
+          className="h-11 pl-9 font-mono text-small"
           required
           disabled={isLoading}
         />
-        <Button
-          type="submit"
-          size="lg"
-          disabled={isLoading}
-          className="min-w-[140px]"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Ingesting...
-            </>
-          ) : (
-            <>
-              <Plus className="mr-2 h-4 w-4" />
-              Ingest Video
-            </>
-          )}
-        </Button>
-      </form>
-      {error && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm px-4 py-2 rounded-md animate-in fade-in slide-in-from-top-1">
-          {error}
-        </div>
-      )}
-    </div>
+      </div>
+      <Button
+        type="submit"
+        size="lg"
+        disabled={isLoading || !url}
+        className="shrink-0 gap-2"
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="hidden sm:inline">Adding</span>
+          </>
+        ) : (
+          <>
+            <span className="hidden sm:inline">Add video</span>
+            <ArrowRight className="h-4 w-4" />
+          </>
+        )}
+      </Button>
+    </form>
   );
 }
