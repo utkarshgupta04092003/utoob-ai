@@ -11,37 +11,51 @@ export function MarkdownRenderer({
   className,
 }: MarkdownRendererProps) {
   return (
-    <div className={cn("prose dark:prose-invert max-w-none", className)}>
+    <div className={cn("text-read text-foreground", className)}>
       <ReactMarkdown
         components={{
           h1: ({ children }) => (
-            <h1 className="text-xl font-bold mb-4 text-primary">{children}</h1>
+            <h1 className="mb-4 mt-8 font-display text-h1 text-foreground first:mt-0">
+              {children}
+            </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-lg font-semibold mt-6 mb-3 text-foreground border-b pb-1">
+            <h2 className="mb-3 mt-8 font-display text-h2 text-foreground first:mt-0">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-base font-semibold mt-4 mb-2 text-foreground/90">
+            <h3 className="mb-2 mt-6 font-sans text-h3 font-semibold text-foreground first:mt-0">
               {children}
             </h3>
           ),
           ul: ({ children }) => (
-            <ul className="list-disc pl-5 space-y-2 mb-4">{children}</ul>
+            <ul className="mb-5 list-disc space-y-2 pl-5 marker:text-muted-foreground">
+              {children}
+            </ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal pl-5 space-y-2 mb-4">{children}</ol>
+            <ol className="mb-5 list-decimal space-y-2 pl-5 marker:text-muted-foreground">
+              {children}
+            </ol>
           ),
           li: ({ children }) => (
-            <li className="text-muted-foreground leading-relaxed">
-              {children}
-            </li>
+            <li className="leading-relaxed text-foreground">{children}</li>
           ),
           p: ({ children }) => (
-            <p className="mb-4 text-muted-foreground leading-relaxed last:mb-0">
+            <p className="mb-5 leading-relaxed text-foreground last:mb-0">
               {children}
             </p>
+          ),
+          a: ({ children, href }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary underline underline-offset-4 hover:text-primary-dark"
+            >
+              {children}
+            </a>
           ),
           strong: ({ children }) => (
             <strong className="font-semibold text-foreground">
@@ -49,14 +63,37 @@ export function MarkdownRenderer({
             </strong>
           ),
           code: ({ children }) => (
-            <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary">
+            <code className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-small text-foreground">
               {children}
             </code>
           ),
+          pre: ({ children }) => (
+            <pre className="mb-5 overflow-x-auto rounded-md border border-border bg-muted p-4 font-mono text-small">
+              {children}
+            </pre>
+          ),
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-primary/30 pl-4 italic my-4 text-muted-foreground">
+            <blockquote className="mb-5 border-l-2 border-primary/40 pl-4 text-muted-foreground">
               {children}
             </blockquote>
+          ),
+          hr: () => <hr className="my-8 border-border" />,
+          table: ({ children }) => (
+            <div className="mb-5 overflow-x-auto">
+              <table className="w-full border-collapse text-body">
+                {children}
+              </table>
+            </div>
+          ),
+          th: ({ children }) => (
+            <th className="border-b border-border px-3 py-2 text-left font-semibold text-foreground">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="border-b border-border px-3 py-2 text-foreground">
+              {children}
+            </td>
           ),
         }}
       >
