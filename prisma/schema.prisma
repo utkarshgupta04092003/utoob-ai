@@ -43,6 +43,8 @@ model Video {
   quizzes      Quiz[]
   chatMessages ChatMessage[]
   socialPosts  SocialPost[]
+
+  @@index([userId, deleted, createdAt(sort: Desc)])
 }
 
 model Summary {
@@ -55,6 +57,8 @@ model Summary {
   content   Json
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
+
+  @@index([videoId, userId, deleted, createdAt(sort: Desc)])
 }
 
 model Note {
@@ -66,6 +70,8 @@ model Note {
   content   Json // Structured JSON
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
+
+  @@index([videoId, userId, deleted, createdAt(sort: Desc)])
 }
 
 model Quiz {
@@ -77,6 +83,8 @@ model Quiz {
   questions Json // JSON array of MCQs
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
+
+  @@index([videoId, userId, deleted, createdAt(sort: Desc)])
 }
 
 model ChatMessage {
@@ -89,6 +97,8 @@ model ChatMessage {
   content   String
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
+
+  @@index([videoId, userId, deleted, createdAt])
 }
 
 model SocialPost {
@@ -102,4 +112,6 @@ model SocialPost {
   metadata  Json? // hook, tone, etc.
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
+
+  @@index([videoId, userId, deleted, createdAt(sort: Desc)])
 }

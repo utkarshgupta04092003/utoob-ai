@@ -1,5 +1,5 @@
 import { ANALYTICS_EVENTS } from "@/lib/config";
-import { posthog } from "@/lib/posthog";
+import { flushAnalytics, posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
@@ -39,12 +39,11 @@ export async function POST(req: Request) {
       distinctId: user.id,
       event: ANALYTICS_EVENTS.USER_SIGNED_UP,
     });
+    flushAnalytics();
 
     return NextResponse.json({ message: "User created" }, { status: 201 });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong";
     return NextResponse.json({ error: message }, { status: 500 });
-  } finally {
-    await posthog.shutdown();
   }
 }

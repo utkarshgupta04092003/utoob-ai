@@ -1,7 +1,7 @@
 import { generateStream, Provider } from "@/lib/ai";
 import { ANALYTICS_EVENTS, ROLES } from "@/lib/config";
 import { logger } from "@/lib/logger";
-import { posthog } from "@/lib/posthog";
+import { flushAnalytics, posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
 import { NextResponse } from "next/server";
@@ -22,6 +22,7 @@ export async function POST(req: Request) {
 
     const video = await prisma.video.findFirst({
       where: { id: videoId, userId, deleted: false },
+      select: { transcript: true },
     });
 
     if (!video) {
@@ -90,6 +91,7 @@ INSTRUCTIONS:
       event: ANALYTICS_EVENTS.CHAT_MESSAGE_SENT,
       properties: { videoId, provider, model },
     });
+    flushAnalytics();
 
     return new Response(readableStream, {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
@@ -98,7 +100,5 @@ INSTRUCTIONS:
     const message = err instanceof Error ? err.message : "Something went wrong";
     logger.error("Chat Error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
-  } finally {
-    await posthog.shutdown();
   }
 }

@@ -8,8 +8,8 @@ let posthogClient: PostHog | null = null;
 if (apiKey) {
   posthogClient = new PostHog(apiKey, {
     host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
-    flushAt: 1,
-    flushInterval: 0,
+    flushAt: 20,
+    flushInterval: 10000,
   });
 }
 
@@ -22,3 +22,11 @@ export const posthog = posthogClient || {
   },
   shutdown: async () => {},
 };
+
+/**
+ * Fire-and-forget flush. Never await this in a request path — awaiting
+ * shutdown() adds a full network round-trip to every response.
+ */
+export function flushAnalytics() {
+  posthogClient?.flush().catch(() => {});
+}

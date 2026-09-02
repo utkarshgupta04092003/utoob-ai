@@ -1,7 +1,7 @@
 import { generateJson, Provider } from "@/lib/ai";
 import { ANALYTICS_EVENTS, APP_CONFIG } from "@/lib/config";
 import { logger } from "@/lib/logger";
-import { posthog } from "@/lib/posthog";
+import { flushAnalytics, posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
 import { NotesSchema } from "@/lib/schemas";
 import { requireAuth } from "@/lib/session";
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
 
     const video = await prisma.video.findFirst({
       where: { id: videoId, userId, deleted: false },
+      select: { transcript: true },
     });
 
     if (!video) {
@@ -62,13 +63,12 @@ export async function POST(req: Request) {
       event: ANALYTICS_EVENTS.NOTES_GENERATED,
       properties: { videoId, provider, model },
     });
+    flushAnalytics();
 
     return NextResponse.json({ data: note.content });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong";
     logger.error("Notes Error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
-  } finally {
-    await posthog.shutdown();
   }
 }

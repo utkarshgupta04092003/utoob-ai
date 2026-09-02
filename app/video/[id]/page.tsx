@@ -23,12 +23,40 @@ export default async function VideoPage({
 
   const video = await prisma.video.findFirst({
     where: { id: params.id, userId, deleted: false },
-    include: {
-      summaries: { orderBy: { createdAt: "desc" } },
-      notes: { orderBy: { createdAt: "desc" } },
-      quizzes: { orderBy: { createdAt: "desc" } },
-      socialPosts: { orderBy: { createdAt: "desc" } },
-      chatMessages: { orderBy: { createdAt: "asc" } },
+    select: {
+      id: true,
+      title: true,
+      authorName: true,
+      youtubeUrl: true,
+      createdAt: true,
+      summaries: {
+        where: { deleted: false },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { content: true },
+      },
+      notes: {
+        where: { deleted: false },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { content: true },
+      },
+      quizzes: {
+        where: { deleted: false },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { questions: true },
+      },
+      socialPosts: {
+        where: { deleted: false },
+        orderBy: { createdAt: "desc" },
+        select: { platform: true, content: true },
+      },
+      chatMessages: {
+        where: { deleted: false },
+        orderBy: { createdAt: "asc" },
+        select: { role: true, content: true },
+      },
     },
   });
 
