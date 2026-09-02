@@ -1,15 +1,9 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ENDPOINTS } from "@/lib/endpoint";
+import { EmptyState } from "@/components/ui/empty-state";
+import { relativeTime } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
 import { extractVideoId } from "@/lib/youtube";
+import { Youtube } from "lucide-react";
 import Link from "next/link";
 import { DeleteVideo } from "./_components/delete-video";
 import { ExternalLinkButton } from "./_components/external-link-button";
@@ -29,57 +23,50 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-bold tracking-tight">Your Videos</h1>
-        <VideoIngestionForm />
+      <div className="space-y-1">
+        <h1 className="font-display text-h1 text-foreground">Library</h1>
+        <p className="text-body text-muted-foreground">
+          {videos.length === 0
+            ? "Paste a YouTube link to get started."
+            : `${videos.length} video${videos.length === 1 ? "" : "s"}`}
+        </p>
       </div>
 
+      <VideoIngestionForm />
+
       {videos.length === 0 ? (
-        <Card className="text-center p-12 border-dashed">
-          <CardTitle className="text-2xl mb-2">No videos yet</CardTitle>
-          <CardDescription className="text-base">
-            Paste a YouTube URL above to get started.
-          </CardDescription>
-        </Card>
+        <EmptyState
+          icon={Youtube}
+          title="Nothing here yet"
+          description="Add a YouTube video above and uToob AI will pull the transcript so you can summarize, take notes, quiz yourself, and chat with it."
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
           {videos.map((video) => (
-            <Link key={video.id} href={`/video/${video.id}`}>
-              <Card className="group hover:border-primary/50 transition-all cursor-pointer h-full overflow-hidden flex flex-col shadow-sm hover:shadow-md">
-                <div className="relative w-full aspect-video bg-muted">
+            <div key={video.id} className="group relative">
+              <Link href={`/video/${video.id}`} className="block space-y-3">
+                <div className="relative aspect-video overflow-hidden rounded-md border border-border bg-muted">
                   <HighResImage
                     videoId={extractVideoId(video.youtubeUrl) || ""}
                     title={video.title}
                   />
-                  <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm p-1 rounded-lg">
-                    <ExternalLinkButton url={video.youtubeUrl} />
-                    <DeleteVideo videoId={video.id} />
-                  </div>
                 </div>
-                <CardHeader className="flex-1 p-6 space-y-3">
-                  <CardTitle className="line-clamp-2 text-lg font-semibold leading-tight group-hover:text-primary transition-colors">
+                <div className="space-y-1.5 pr-16">
+                  <h2 className="line-clamp-2 text-body font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
                     {video.title}
-                  </CardTitle>
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-primary font-bold truncate max-w-[150px]">
-                      {video.authorName}
-                    </span>
-                    <span className="text-muted-foreground">•</span>
-                    <span className="text-muted-foreground truncate flex-1">
-                      {video.youtubeUrl.replace(
-                        "https://www.youtube.com/watch?v=",
-                        "",
-                      )}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground/60">
-                    Added {new Date(video.createdAt).toLocaleDateString()}
+                  </h2>
+                  <p className="truncate text-small text-muted-foreground">
+                    {video.authorName}
+                    <span className="px-1.5">·</span>
+                    {relativeTime(video.createdAt)}
                   </p>
-                </CardContent>
-              </Card>
-            </Link>
+                </div>
+              </Link>
+              <div className="absolute bottom-0 right-0 flex items-center gap-0.5">
+                <ExternalLinkButton url={video.youtubeUrl} />
+                <DeleteVideo videoId={video.id} />
+              </div>
+            </div>
           ))}
         </div>
       )}

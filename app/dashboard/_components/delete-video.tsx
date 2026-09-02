@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { ENDPOINTS } from "@/lib/endpoint";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -9,6 +10,7 @@ import { useState } from "react";
 export function DeleteVideo({ videoId }: { videoId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -34,10 +36,10 @@ export function DeleteVideo({ videoId }: { videoId: string }) {
         router.refresh();
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to delete video");
+        toast(data.error || "Failed to delete video", "error");
       }
     } catch (err) {
-      alert("Something went wrong");
+      toast("Something went wrong", "error");
     } finally {
       setLoading(false);
     }
@@ -47,7 +49,7 @@ export function DeleteVideo({ videoId }: { videoId: string }) {
     <Button
       variant="ghost"
       size="icon"
-      className="h-8 w-8 text-muted-foreground hover:text-destructive transition-colors"
+      className="h-8 w-8 text-muted-foreground transition-colors hover:text-destructive"
       onClick={handleDelete}
       disabled={loading}
     >
