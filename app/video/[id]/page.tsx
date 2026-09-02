@@ -1,8 +1,7 @@
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
+import { AppShell } from "@/components/layout/app-shell";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -38,35 +37,22 @@ export default async function VideoPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10 py-2">
-        <div className="container mx-auto px-6 h-20 flex items-center gap-6">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <div className="flex-1 min-w-0">
-            <h1 className="font-bold text-xl truncate">{video.title}</h1>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-primary font-bold">{video.authorName}</span>
-              <span>•</span>
-              <a
-                href={video.youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground flex items-center gap-1 transition-colors"
-              >
-                View on YouTube <ExternalLink className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-          <ThemeToggle />
-        </div>
-      </header>
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
+    <AppShell>
+      <div className="mx-auto max-w-6xl px-5 py-8 lg:px-10 lg:py-10">
+        <Link
+          href="/dashboard"
+          className="mb-6 inline-flex items-center gap-1.5 text-small text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Library
+        </Link>
+
+        <h1 className="mb-8 font-display text-h1 leading-tight text-foreground lg:hidden">
+          {video.title}
+        </h1>
+
         <VideoTabs video={video} />
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }
