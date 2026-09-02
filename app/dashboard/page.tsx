@@ -19,6 +19,13 @@ export default async function DashboardPage() {
   const videos = await prisma.video.findMany({
     where: { userId, deleted: false },
     orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      authorName: true,
+      youtubeUrl: true,
+      createdAt: true,
+    },
   });
 
   return (

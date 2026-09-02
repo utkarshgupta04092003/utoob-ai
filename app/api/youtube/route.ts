@@ -1,6 +1,6 @@
 import { ANALYTICS_EVENTS } from "@/lib/config";
 import { logger } from "@/lib/logger";
-import { posthog } from "@/lib/posthog";
+import { flushAnalytics, posthog } from "@/lib/posthog";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/session";
 import {
@@ -60,14 +60,13 @@ export async function POST(req: Request) {
       event: ANALYTICS_EVENTS.VIDEO_INGESTED,
       properties: { videoId: video.id, youtubeId: videoId },
     });
+    flushAnalytics();
 
     return NextResponse.json(video);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Something went wrong";
     logger.error("YouTube Ingestion Error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
-  } finally {
-    await posthog.shutdown();
   }
 }
 

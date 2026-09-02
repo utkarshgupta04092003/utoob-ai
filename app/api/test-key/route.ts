@@ -1,7 +1,7 @@
 import { Provider, validateKey } from "@/lib/ai";
 import { ANALYTICS_EVENTS } from "@/lib/config";
 import { logger } from "@/lib/logger";
-import { posthog } from "@/lib/posthog";
+import { flushAnalytics, posthog } from "@/lib/posthog";
 import { requireAuth } from "@/lib/session";
 import { NextResponse } from "next/server";
 
@@ -30,6 +30,7 @@ export async function POST(req: Request) {
       event: ANALYTICS_EVENTS.SETTINGS_UPDATED,
       properties: { action: "test_key", provider, isValid },
     });
+    flushAnalytics();
 
     if (isValid) {
       return NextResponse.json({ message: "API Key is working!" });
@@ -43,7 +44,5 @@ export async function POST(req: Request) {
     const message = err instanceof Error ? err.message : "Something went wrong";
     logger.error("Test Key Error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
-  } finally {
-    await posthog.shutdown();
   }
 }
