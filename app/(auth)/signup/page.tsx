@@ -3,6 +3,7 @@
 import { AuthLayout, Field } from "@/components/layout/auth-layout";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -32,10 +33,23 @@ export default function SignupPage() {
         throw new Error(data.error || "Something went wrong");
       }
 
-      router.push("/login?message=Account created successfully. Please login.");
+      const signInRes = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInRes?.error) {
+        router.push(
+          "/login?message=Account created successfully. Please login.",
+        );
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   };
